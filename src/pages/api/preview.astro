@@ -1,0 +1,85 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BlocksRenderer from '../components/BlocksRenderer.astro';
+import { fetchPageById, getImageUrl } from '../lib/strapi';
+
+const { slug, secret, documentId, status } = Astro.url.searchParams;
+const PREVIEW_SECRET = import.meta.env.PREVIEW_SECRET;
+
+// Check if preview mode is valid
+let error = null;
+let page = null;
+
+if (secret !== PREVIEW_SECRET) {
+  error = 'Invalid preview secret';
+} else if (!documentId) {
+  error = 'Missing document ID';
+} else {
+  try {
+    // Fetch page in preview mode (includes drafts)
+    page = await fetchPageById(documentId, true);
+    
+    if (!page) {
+      error = 'Page not found';
+    }
+  } catch (e) {
+    error = 'Failed to fetch page';
+  }
+}
+
+const heroImageUrl = page?.heroImage ? getImageUrl(page.heroImage) : null;
+---
+
+<Layout title={page ? `Preview: ${page.title}` : 'Preview Error'}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    {error ? (
+      <div class="text-center py-20">
+        <h1 class="text-2xl font-bold text-red-600 mb-4">Preview Error</h1>
+        <p class="text-gray-600">{error}</p>
+        <a href="/" class="text-primary-600 hover:underline mt-4 inline-block">
+          ← Back to home
+        </a>
+      </div>
+    ) : (
+      <>
+        <!-- Preview Banner -->
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-8 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span class="text-amber-800 font-medium">Preview Mode</span>
+            {status && (
+              <span class="text-amber-700 text-sm">({status})</span>
+            )}
+          </div>
+          <a href={`/${page.slug}`} class="text-amber-700 hover:text-amber-900 text-sm underline">
+            View published version
+          </a>
+        </div>
+
+        <!-- Page Content -->
+        <article>
+          <header class="mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              {page.title}
+            </h1>
+            
+            {heroImageUrl && (
+              <div class="relative aspect-video rounded-xl overflow-hidden shadow-lg mb-8">
+                <img 
+                  src={heroImageUrl}
+                  alt={page.heroImage?.alternativeText || page.title}
+                  class="w-full h-full object-cover"
+                />
+              </div>
+            )}
+          </header>
+          
+          <BlocksRenderer blocks={page.content} />
+        </article>
+      </>
+    )}
+  </div>
+</Layout>

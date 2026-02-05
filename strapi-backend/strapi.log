@@ -1,0 +1,143 @@
+
+> strapi-backend@0.1.0 develop
+> strapi develop
+
+- Loading Strapi
+[2026-02-04 17:57:46.114] [33mwarn[39m: admin.auth.options.expiresIn is deprecated and will be removed in Strapi 6. Please configure admin.auth.sessions.maxRefreshTokenLifespan and admin.auth.sessions.maxSessionLifespan.
+✓ Strapi bootstrap complete
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_AI_URL
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (5ms)
+- Creating admin
+✔ Creating admin (157ms)
+✔ Loading Strapi (712ms)
+- Generating types
+✔ Generating types (81ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Feb 04 2026 17:57:46 GMT-0600 (Central Stan… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 797 ms                                           [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 37356                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.35.0 (node v20.20.0)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m ../.tmp/data.db                                  [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+One more thing...
+Create your first administrator 💻 by going to the administration panel at:
+
+[90m┌─────────────────────────────┐[39m
+[90m│[39m http://localhost:1337/admin [90m│[39m
+[90m└─────────────────────────────┘[39m
+
+[2026-02-04 17:57:46.397] [32minfo[39m: Strapi started successfully
+[2026-02-04 17:57:46.522] [32mhttp[39m: GET /admin (22 ms) 200
+[2026-02-04 17:57:46.897] [32mhttp[39m: GET /admin/project-type (1 ms) 200
+[2026-02-04 17:57:46.964] [32mhttp[39m: GET /admin/init (2 ms) 200
+[2026-02-04 17:57:53.793] [32mhttp[39m: GET /api/pages (1 ms) 401
+[2026-02-04 17:58:12.710] [32minfo[39m: File created: /Volumes/x9-pro/Users/tre/code/milawn/strapi-backend/setup.js
+[2026-02-04 17:58:12.711] [32minfo[39m: Shutting down Strapi
+[2026-02-04 17:58:12.713] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+[2026-02-04 17:58:13.707] [33mwarn[39m: admin.auth.options.expiresIn is deprecated and will be removed in Strapi 6. Please configure admin.auth.sessions.maxRefreshTokenLifespan and admin.auth.sessions.maxSessionLifespan.
+✓ Strapi bootstrap complete
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_AI_URL
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (4ms)
+- Creating admin
+✔ Creating admin (143ms)
+✔ Loading Strapi (638ms)
+- Generating types
+✔ Generating types (80ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Feb 04 2026 17:58:13 GMT-0600 (Central Stan… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 721 ms                                           [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 37528                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.35.0 (node v20.20.0)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m ../.tmp/data.db                                  [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+One more thing...
+Create your first administrator 💻 by going to the administration panel at:
+
+[90m┌─────────────────────────────┐[39m
+[90m│[39m http://localhost:1337/admin [90m│[39m
+[90m└─────────────────────────────┘[39m
+
+[2026-02-04 17:58:13.974] [32minfo[39m: Strapi started successfully
+[2026-02-04 17:58:14.100] [32mhttp[39m: GET /admin (25 ms) 200
+[2026-02-04 17:58:14.405] [32mhttp[39m: GET /admin/project-type (2 ms) 200
+[2026-02-04 17:58:14.458] [32mhttp[39m: GET /admin/init (1 ms) 200
+[2026-02-04 17:58:31.097] [32minfo[39m: File created: /Volumes/x9-pro/Users/tre/code/milawn/strapi-backend/README.md
+[2026-02-04 17:58:31.098] [32minfo[39m: Shutting down Strapi
+[2026-02-04 17:58:31.101] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+[2026-02-04 17:58:32.052] [33mwarn[39m: admin.auth.options.expiresIn is deprecated and will be removed in Strapi 6. Please configure admin.auth.sessions.maxRefreshTokenLifespan and admin.auth.sessions.maxSessionLifespan.
+✓ Strapi bootstrap complete
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_AI_URL
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (4ms)
+- Creating admin
+✔ Creating admin (126ms)
+✔ Loading Strapi (593ms)
+- Generating types
+✔ Generating types (76ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Feb 04 2026 17:58:32 GMT-0600 (Central Stan… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 672 ms                                           [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 37565                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.35.0 (node v20.20.0)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m ../.tmp/data.db                                  [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+One more thing...
+Create your first administrator 💻 by going to the administration panel at:
+
+[90m┌─────────────────────────────┐[39m
+[90m│[39m http://localhost:1337/admin [90m│[39m
+[90m└─────────────────────────────┘[39m
+
+[2026-02-04 17:58:32.295] [32minfo[39m: Strapi started successfully
+[2026-02-04 17:58:32.441] [32mhttp[39m: GET /admin (41 ms) 200
+[2026-02-04 17:58:32.778] [32mhttp[39m: GET /admin/project-type (2 ms) 200
+[2026-02-04 17:58:32.839] [32mhttp[39m: GET /admin/init (2 ms) 200

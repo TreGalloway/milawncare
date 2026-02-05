@@ -1,0 +1,57 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BlocksRenderer from '../components/BlocksRenderer.astro';
+import { fetchPages, fetchPage, fetchPageById, getImageUrl } from '../lib/strapi';
+
+// SSG: Generate all pages at build time
+export async function getStaticPaths() {
+  const pages = await fetchPages();
+  
+  return pages.map((page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }));
+}
+
+interface Props {
+  page: {
+    title: string;
+    slug: string;
+    content: any[];
+    heroImage?: {
+      url: string;
+      alternativeText?: string;
+    };
+  };
+}
+
+const { page } = Astro.props;
+
+// Get hero image URL
+const heroImageUrl = page.heroImage ? getImageUrl(page.heroImage) : null;
+---
+
+<Layout title={page.title}>
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero Section -->
+    <header class="mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+        {page.title}
+      </h1>
+      
+      {heroImageUrl && (
+        <div class="relative aspect-video rounded-xl overflow-hidden shadow-lg mb-8">
+          <img 
+            src={heroImageUrl}
+            alt={page.heroImage?.alternativeText || page.title}
+            class="w-full h-full object-cover"
+            loading="eager"
+          />
+        </div>
+      )}
+    </header>
+    
+    <!-- Content -->
+    <BlocksRenderer blocks={page.content} />
+  </article>
+</Layout>

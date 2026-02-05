@@ -1,0 +1,105 @@
+---
+import type { Block } from '../types/index';
+import { getImageUrl } from '../lib/strapi';
+
+interface Props {
+  blocks: Block[];
+}
+
+const { blocks } = Astro.props;
+
+/**
+ * Render a single block node
+ */
+function renderNode(node: Block): string {
+  // Handle text nodes with inline formatting
+  if (node.type === 'text') {
+    let text = node.text || '';
+    if (node.bold) text = `<strong>${text}</strong>`;
+    if (node.italic) text = `<em>${text}</em>`;
+    if (node.underline) text = `<u>${text}</u>`;
+    if (node.strikethrough) text = `<s>${text}</s>`;
+    if (node.code) text = `<code>${text}</code>`;
+    return text;
+  }
+  
+  // Handle links
+  if (node.type === 'link') {
+    const children = node.children?.map(renderNode).join('') || '';
+    return `<a href="${node.url}" class="text-primary-600 hover:underline">${children}</a>`;
+  }
+  
+  // Handle image blocks
+  if (node.type === 'image') {
+    const imgUrl = getImageUrl(node.image);
+    const alt = node.image?.alternativeText || '';
+    const caption = node.image?.caption;
+    return `
+      <figure class="my-8">
+        <img 
+          src="${imgUrl}" 
+          alt="${alt}" 
+          class="w-full rounded-lg shadow-md"
+          loading="lazy"
+        />
+        ${caption ? `<figcaption class="text-center text-gray-600 mt-2 text-sm">${caption}</figcaption>` : ''}
+      </figure>
+    `;
+  }
+  
+  // Recursively render children
+  const children = node.children?.map(renderNode).join('') || '';
+  
+  switch (node.type) {
+    case 'paragraph':
+      return `<p class="mb-4 text-gray-700 leading-relaxed">${children}</p>`;
+    
+    case 'heading':
+      const level = node.level || 1;
+      const sizes = {
+        1: 'text-4xl font-bold mb-6 mt-8',
+        2: 'text-3xl font-bold mb-4 mt-6',
+        3: 'text-2xl font-semibold mb-3 mt-5',
+        4: 'text-xl font-semibold mb-3 mt-4',
+        5: 'text-lg font-semibold mb-2 mt-4',
+        6: 'text-base font-semibold mb-2 mt-3',
+      };
+      return `<h${level} class="${sizes[level as keyof typeof sizes]}">${children}</h${level}>`;
+    
+    case 'list':
+      const listClass = node.format === 'ordered' 
+        ? 'list-decimal' 
+        : 'list-disc';
+      const ListTag = node.format === 'ordered' ? 'ol' : 'ul';
+      return `<${ListTag} class="${listClass} pl-6 mb-4 space-y-2">${children}</${ListTag}>`;
+    
+    case 'quote':
+      return `<blockquote class="border-l-4 border-primary-500 pl-4 italic text-gray-600 my-6">${children}</blockquote>`;
+    
+    case 'code':
+      return `<pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code>${children}</code></pre>`;
+    
+    default:
+      return children;
+  }
+}
+
+const html = blocks?.map(renderNode).join('') || '';
+---
+
+<div class="prose prose-lg max-w-none" set:html={html} />
+
+<style>
+  .prose ul li {
+    @apply text-gray-700;
+  }
+  .prose ol li {
+    @apply text-gray-700;
+  }
+  .prose code {
+    @apply bg-gray-100 px-1 py-0.5 rounded text-sm;
+  }
+  .prose pre code {
+    @apply bg-transparent p-0;
+  }
+</style>
