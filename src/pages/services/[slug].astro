@@ -1,0 +1,284 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CTABanner from '../../components/CTABanner.astro';
+
+export function getStaticPaths() {
+  const services = [
+    {
+      slug: 'mowing',
+      name: 'Mowing',
+      shortDescription: 'Weekly and biweekly mowing with string trimming, edging, and blowing.',
+      fullDescription: `MI Premier Lawn Care, L.L.C services residential customers. During our intake process, we will sit and discuss our service agreement plans. Our service agreements start in April and run through the end of September.
+
+We offer two main mowing packages for residential customers.
+
+**Weekly and Biweekly Mowing Service Agreements**
+
+Our mowing service agreement plans only consists of the following services:
+- Mowing
+- String Trimming
+- Edging
+- Blowing`,
+      pricing: [
+        { size: '0 - 2,000 sq ft', weekly: '$40', biweekly: '$35' },
+        { size: '2,001 - 3,000 sq ft', weekly: '$50', biweekly: '$45' },
+        { size: '3,001 - 4,000 sq ft', weekly: '$60', biweekly: '$55' },
+        { size: '4,001 - 5,000 sq ft', weekly: '$70', biweekly: '$60' },
+        { size: '5,001 - 6,000 sq ft', weekly: '$80', biweekly: '$70' },
+        { size: '6,001 - 7,000 sq ft', weekly: '$90', biweekly: '$80' },
+        { size: '7,001 - 8,000 sq ft', weekly: '$100', biweekly: '$90' },
+        { size: '8,001 - 9,000 sq ft', weekly: '$110', biweekly: '$95' },
+        { size: '9,001 - 10,000 sq ft', weekly: '$120', biweekly: '$105' },
+        { size: '10,001 - 11,000 sq ft', weekly: '$130', biweekly: '$115' },
+      ],
+      icon: 'mowing',
+      hasPricing: true,
+    },
+    {
+      slug: 'hedge-trimming',
+      name: 'Hedge Trimming',
+      shortDescription: 'Professional hedge and bush trimming services.',
+      fullDescription: `We offer hedge trimming services. We DO NOT offer tree trimming services. If you sign up for our service agreement plan, you'll receive priority scheduling and discounted rates.
+
+**Service Agreement Plan:**
+- The fee depends on the number and size of your bushes or hedges
+
+**No Service Agreement:**
+- Fee depends on the number and size of bushes or hedges
+
+Our professional team will shape and trim your hedges to enhance your property's curb appeal.`,
+      pricing: [
+        { size: 'Small (1-5 bushes)', weekly: 'Call for quote', biweekly: '-' },
+        { size: 'Medium (6-10 bushes)', weekly: 'Call for quote', biweekly: '-' },
+        { size: 'Large (10+ bushes)', weekly: 'Call for quote', biweekly: '-' },
+      ],
+      icon: 'hedge_trimming',
+      hasPricing: true,
+    },
+    {
+      slug: 'leaf-removal',
+      name: 'Leaf Removal',
+      shortDescription: 'Spring and fall leaf removal services.',
+      fullDescription: `Leaf removal season generally occurs in early spring and fall seasons. We offer two service agreement plans:
+
+**Service Agreement Plans:**
+1. If you sign up for our mulch leaf service agreement plan, leaf removal service starts at $175.00 per occurrence.
+2. If you sign up for our bagging service agreement plan, your leaf removal service starts at $200.00 per occurrence.
+
+**No Service Agreement:**
+- Leaf removal starts at $250.00 per occurrence.
+
+Let us handle the messy cleanup so you can enjoy a beautiful, leaf-free yard!`,
+      pricing: [
+        { size: 'With Service Agreement (Mulch)', weekly: '$175/visit', biweekly: '-' },
+        { size: 'With Service Agreement (Bagging)', weekly: '$200/visit', biweekly: '-' },
+        { size: 'No Service Agreement', weekly: '$250/visit', biweekly: '-' },
+      ],
+      icon: 'leaf_removal',
+      hasPricing: true,
+    },
+    {
+      slug: 'fertilizing',
+      name: 'Fertilizing',
+      shortDescription: 'Non-pesticide lawn fertilization for a healthier, greener lawn.',
+      fullDescription: `We offer lawn fertilization (non-pesticides). We have two plans. We DO NOT offer weed control, as we are not licensed to provide this service.
+
+**Benefits of Fertilization:**
+- Healthier lawn
+- Greener grass
+- Thicker lawn
+- More stress resistant
+
+**With Service Agreement:**
+- Fertilizing starts at $60 per application
+
+**Without Service Agreement:**
+- Fertilizing starts at $75 per application
+
+Our non-pesticide approach is safe for families and pets while still delivering a lush, healthy lawn.`,
+      pricing: [
+        { size: 'With Service Agreement', weekly: '$60/application', biweekly: '-' },
+        { size: 'Without Service Agreement', weekly: '$75/application', biweekly: '-' },
+      ],
+      icon: 'fertilizing',
+      hasPricing: true,
+    },
+    {
+      slug: 'mulching',
+      name: 'Mulching',
+      shortDescription: 'Professional mulch installation services.',
+      fullDescription: `We offer mulch installation services to enhance the look of your landscape and protect your plants.
+
+**Why Mulch?**
+- Retains soil moisture
+- Suppresses weeds
+- Regulates soil temperature
+- Enhances curb appeal
+
+**Pricing:**
+- Call for a free quote based on your property size and mulch type preference.
+
+We offer various mulch types including hardwood, cedar, and colored mulch to match your landscape design.`,
+      pricing: [
+        { size: 'Custom Quote', weekly: 'Call for quote', biweekly: '-' },
+      ],
+      icon: 'mulching',
+      hasPricing: true,
+    },
+    {
+      slug: 'overseeding',
+      name: 'Overseeding',
+      shortDescription: 'Spring and fall overseeding for a thicker lawn.',
+      fullDescription: `We offer service agreement plans for overseeding. We overseed lawns during the early spring and fall seasons.
+
+**Why Overseed Your Lawn?**
+- Fills in bare spots
+- Thickens existing grass
+- Improves lawn density
+- Enhances color
+- Resists disease and pests
+
+**With Service Agreement:**
+- Overseeding starts at $100 per application
+
+**Without Service Agreement:**
+- Overseeding starts at $125 per application`,
+      pricing: [
+        { size: 'With Service Agreement', weekly: '$100/application', biweekly: '-' },
+        { size: 'Without Service Agreement', weekly: '$125/application', biweekly: '-' },
+      ],
+      icon: 'overseeding',
+      hasPricing: true,
+    },
+    {
+      slug: 'snow-removal',
+      name: 'Snow Removal',
+      shortDescription: 'Reliable snow removal services for residential properties.',
+      fullDescription: `We offer snow removal services agreement plans for a limited number of customers and for limited times during the day.
+
+**Service Agreement:**
+- Snow removal starts at $40.00 per snow removal
+
+**No Service Agreement:**
+- Snow removal starts at $65.00 per snow removal
+
+Stay safe this winter! Our reliable snow removal services will keep your driveway and walkways clear.`,
+      pricing: [
+        { size: 'With Service Agreement', weekly: '$40/visit', biweekly: '-' },
+        { size: 'Without Service Agreement', weekly: '$65/visit', biweekly: '-' },
+      ],
+      icon: 'snow_removal',
+      hasPricing: true,
+    },
+    {
+      slug: 'salting',
+      name: 'Salting',
+      shortDescription: 'Rock salt and calcium chloride services.',
+      fullDescription: `We offer salting plans. We provide Rock as well as Calcium Chloride salt.
+
+**Rock Salt:**
+- With existing snow removal service agreement: $10.00 per occurrence
+- Without service agreement: $15.00 per occurrence
+
+**Calcium Chloride:**
+- With existing snow removal service agreement: $20.00 per occurrence
+- Without service agreement: $25.00 per occurrence
+
+Calcium Chloride is more effective at lower temperatures and less damaging to concrete and vegetation.`,
+      pricing: [
+        { size: 'Rock Salt (with agreement)', weekly: '$10/occurrence', biweekly: '-' },
+        { size: 'Rock Salt (no agreement)', weekly: '$15/occurrence', biweekly: '-' },
+        { size: 'Calcium Chloride (with agreement)', weekly: '$20/occurrence', biweekly: '-' },
+        { size: 'Calcium Chloride (no agreement)', weekly: '$25/occurrence', biweekly: '-' },
+      ],
+      icon: 'salting',
+      hasPricing: true,
+    },
+  ];
+
+  return services.map((service) => ({
+    params: { slug: service.slug },
+    props: { service },
+  }));
+}
+
+const { service } = Astro.props;
+
+const iconMap: Record<string, string> = {
+  mowing: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />`,
+  hedge_trimming: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />`,
+  leaf_removal: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />`,
+  fertilizing: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />`,
+  mulching: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />`,
+  overseeding: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />`,
+  snow_removal: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v20M2 12h20" />`,
+  salting: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />`,
+};
+
+const iconPath = iconMap[service.icon] || iconMap.mowing;
+---
+
+<Layout title={service.name}>
+  <section class="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 py-16 lg:py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <a href="/services" class="inline-flex items-center gap-2 text-primary-100 hover:text-white mb-6 transition-colors">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Services
+      </a>
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+          <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" set:html={iconPath} />
+        </div>
+        <h1 class="text-4xl lg:text-5xl font-bold text-white">
+          {service.name}
+        </h1>
+      </div>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+  </section>
+
+  <section class="py-12 lg:py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="prose prose-lg max-w-none">
+        {service.fullDescription.split('\n\n').map((paragraph) => (
+          <p class="text-gray-600 mb-6 whitespace-pre-line">{paragraph}</p>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {service.hasPricing && service.pricing && (
+    <section class="py-12 lg:py-16 bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Pricing</h2>
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+          <table class="w-full">
+            <thead class="bg-primary-50">
+              <tr>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Property Size</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Weekly</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Bi-Weekly</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {service.pricing.map((tier) => (
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 text-gray-700">{tier.size}</td>
+                  <td class="px-6 py-4 text-gray-900 font-medium">{tier.weekly}</td>
+                  <td class="px-6 py-4 text-gray-600">{tier.biweekly}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-6 text-center text-gray-500 text-sm">
+          * Prices are approximate and may vary based on property conditions. Call for a free estimate.
+        </p>
+      </div>
+    </section>
+  )}
+
+  <CTABanner />
+</Layout>

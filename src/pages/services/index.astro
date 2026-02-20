@@ -1,0 +1,25 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ServiceGrid from '../../components/ServiceGrid.astro';
+import CTABanner from '../../components/CTABanner.astro';
+
+const pageTitle = "Our Services";
+---
+
+<Layout title={pageTitle}>
+  <section class="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 py-16 lg:py-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4">
+        Our Services
+      </h1>
+      <p class="text-xl text-primary-100 max-w-2xl mx-auto">
+        Professional lawn care you can trust. Free estimates on all services.
+      </p>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+  </section>
+
+  <ServiceGrid />
+
+  <CTABanner />
+</Layout>
