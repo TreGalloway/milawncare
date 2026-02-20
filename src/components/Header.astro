@@ -1,4 +1,22 @@
 ---
+interface Props {
+  siteData?: {
+    companyName: string;
+    phoneNumber: string;
+    yardbookUrl: string;
+    email?: string;
+    address?: string;
+  };
+}
+
+const DEFAULT_SITE_DATA = {
+  companyName: 'MI Premier Lawn Care, L.L.C',
+  phoneNumber: '(810) 309-9528',
+  yardbookUrl: 'http://ydbk.co/137258',
+};
+
+const siteData = Astro.props.siteData || DEFAULT_SITE_DATA;
+
 const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services' },
@@ -7,7 +25,7 @@ const navLinks = [
   { label: 'Contact', href: '/contact' },
 ];
 
-const phoneNumber = '(810) 309-9528';
+const phoneNumber = siteData.phoneNumber;
 const currentPath = Astro.url.pathname;
 ---
 
@@ -21,7 +39,7 @@ const currentPath = Astro.url.pathname;
           </svg>
         </div>
         <span class="text-lg lg:text-xl font-bold text-gray-900 hidden sm:block">
-          MI Premier <span class="text-primary-600">Lawn Care</span>
+          {siteData.companyName.replace(', L.L.C', '')}
         </span>
       </a>
 
@@ -52,7 +70,7 @@ const currentPath = Astro.url.pathname;
           {phoneNumber}
         </a>
         <a
-          href="http://ydbk.co/137258"
+          href={siteData.yardbookUrl}
           target="_blank"
           rel="noopener noreferrer"
           class="bg-accent-500 hover:bg-accent-600 text-gray-900 px-4 py-2 rounded-lg font-semibold text-sm transition-colors"

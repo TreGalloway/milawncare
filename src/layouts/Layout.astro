@@ -1,13 +1,38 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { fetchSiteSettings } from '../lib/strapi';
 
 interface Props {
   title: string;
   description?: string;
 }
 
+const DEFAULT_SITE_DATA = {
+  companyName: 'MI Premier Lawn Care, L.L.C',
+  phoneNumber: '(810) 309-9528',
+  yardbookUrl: 'http://ydbk.co/137258',
+  email: '',
+  address: '',
+};
+
 const { title, description = 'MI Premier Lawn Care - Professional lawn care services in Flint, MI and surrounding areas. Free estimates on all services.' } = Astro.props;
+
+let siteData = DEFAULT_SITE_DATA;
+try {
+  const settings = await fetchSiteSettings();
+  if (settings) {
+    siteData = {
+      companyName: settings.companyName || DEFAULT_SITE_DATA.companyName,
+      phoneNumber: settings.phoneNumber || DEFAULT_SITE_DATA.phoneNumber,
+      yardbookUrl: settings.yardbookUrl || DEFAULT_SITE_DATA.yardbookUrl,
+      email: settings.email || '',
+      address: settings.address || '',
+    };
+  }
+} catch (e) {
+  console.warn('Failed to fetch site settings, using defaults');
+}
 ---
 
 <!DOCTYPE html>
@@ -17,7 +42,7 @@ const { title, description = 'MI Premier Lawn Care - Professional lawn care serv
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>{title} | MI Premier Lawn Care</title>
+  <title>{title} | {siteData.companyName}</title>
   <style is:global>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
@@ -32,12 +57,12 @@ const { title, description = 'MI Premier Lawn Care - Professional lawn care serv
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
-  <Header />
+  <Header siteData={siteData} />
   
   <main class="flex-grow">
     <slot />
   </main>
   
-  <Footer />
+  <Footer siteData={siteData} />
 </body>
 </html>

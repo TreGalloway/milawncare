@@ -1,16 +1,20 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Hero from '../components/Hero.astro';
-import ServiceGrid from '../components/ServiceGrid.astro';
-import ServiceAreas from '../components/ServiceAreas.astro';
-import CTABanner from '../components/CTABanner.astro';
+import BlocksRenderer from '../components/BlocksRenderer.astro';
+import { fetchPage, fetchServices, fetchServiceAreas } from '../lib/strapi';
 
-const pageTitle = "Professional Lawn Care Services in Flint, MI";
+const services = await fetchServices();
+const serviceAreas = await fetchServiceAreas();
+const page = await fetchPage('home');
+
+const pageTitle = page?.metaTitle || 'Professional Lawn Care Services in Flint, MI';
+const pageDescription = page?.metaDescription || 'MI Premier Lawn Care - Professional lawn care services in Flint, MI and surrounding areas. Free estimates on all services.';
 ---
 
-<Layout title={pageTitle}>
-  <Hero />
-  <ServiceGrid />
-  <ServiceAreas />
-  <CTABanner />
+<Layout title={pageTitle} description={pageDescription}>
+  <BlocksRenderer 
+    blocks={page?.blocks} 
+    services={services}
+    serviceAreas={serviceAreas}
+  />
 </Layout>

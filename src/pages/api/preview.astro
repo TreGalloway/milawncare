@@ -1,7 +1,7 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import BlocksRenderer from '../components/BlocksRenderer.astro';
-import { fetchPageById, getImageUrl } from '../lib/strapi';
+import Layout from '../../layouts/Layout.astro';
+import BlocksRenderer from '../../components/BlocksRenderer.astro';
+import { fetchPageById, getImageUrl } from '../../lib/strapi';
 
 const { slug, secret, documentId, status } = Astro.url.searchParams;
 const PREVIEW_SECRET = import.meta.env.PREVIEW_SECRET;

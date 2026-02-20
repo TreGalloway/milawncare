@@ -1,105 +1,318 @@
 ---
-import type { Block } from '../types/index';
-import { getImageUrl } from '../lib/strapi';
+import type { PageBlock, HeroBlock, ServiceGridBlock, ServiceAreasBlock, CTABlock, TextBlock, ImageGridBlock, Service, ServiceArea, GalleryItem } from '../types/index';
+import { getFullImageUrl, getImageFormatUrl } from '../lib/strapi';
 
 interface Props {
-  blocks: Block[];
+  blocks?: PageBlock[];
+  services?: Service[];
+  serviceAreas?: ServiceArea[];
+  galleryItems?: GalleryItem[];
 }
 
-const { blocks } = Astro.props;
+const { blocks, services = [], serviceAreas = [], galleryItems = [] } = Astro.props;
 
-/**
- * Render a single block node
- */
-function renderNode(node: Block): string {
-  // Handle text nodes with inline formatting
-  if (node.type === 'text') {
-    let text = node.text || '';
-    if (node.bold) text = `<strong>${text}</strong>`;
-    if (node.italic) text = `<em>${text}</em>`;
-    if (node.underline) text = `<u>${text}</u>`;
-    if (node.strikethrough) text = `<s>${text}</s>`;
-    if (node.code) text = `<code>${text}</code>`;
-    return text;
-  }
-  
-  // Handle links
-  if (node.type === 'link') {
-    const children = node.children?.map(renderNode).join('') || '';
-    return `<a href="${node.url}" class="text-primary-600 hover:underline">${children}</a>`;
-  }
-  
-  // Handle image blocks
-  if (node.type === 'image') {
-    const imgUrl = getImageUrl(node.image);
-    const alt = node.image?.alternativeText || '';
-    const caption = node.image?.caption;
-    return `
-      <figure class="my-8">
-        <img 
-          src="${imgUrl}" 
-          alt="${alt}" 
-          class="w-full rounded-lg shadow-md"
-          loading="lazy"
-        />
-        ${caption ? `<figcaption class="text-center text-gray-600 mt-2 text-sm">${caption}</figcaption>` : ''}
-      </figure>
-    `;
-  }
-  
-  // Recursively render children
-  const children = node.children?.map(renderNode).join('') || '';
-  
-  switch (node.type) {
-    case 'paragraph':
-      return `<p class="mb-4 text-gray-700 leading-relaxed">${children}</p>`;
-    
-    case 'heading':
-      const level = node.level || 1;
-      const sizes = {
-        1: 'text-4xl font-bold mb-6 mt-8',
-        2: 'text-3xl font-bold mb-4 mt-6',
-        3: 'text-2xl font-semibold mb-3 mt-5',
-        4: 'text-xl font-semibold mb-3 mt-4',
-        5: 'text-lg font-semibold mb-2 mt-4',
-        6: 'text-base font-semibold mb-2 mt-3',
-      };
-      return `<h${level} class="${sizes[level as keyof typeof sizes]}">${children}</h${level}>`;
-    
-    case 'list':
-      const listClass = node.format === 'ordered' 
-        ? 'list-decimal' 
-        : 'list-disc';
-      const ListTag = node.format === 'ordered' ? 'ol' : 'ul';
-      return `<${ListTag} class="${listClass} pl-6 mb-4 space-y-2">${children}</${ListTag}>`;
-    
-    case 'quote':
-      return `<blockquote class="border-l-4 border-primary-500 pl-4 italic text-gray-600 my-6">${children}</blockquote>`;
-    
-    case 'code':
-      return `<pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code>${children}</code></pre>`;
-    
-    default:
-      return children;
-  }
-}
+const DEFAULT_SERVICES: Service[] = [
+  { id: 1, documentId: '1', name: 'Mowing', slug: 'mowing', shortDescription: 'Weekly and biweekly mowing with string trimming, edging, and blowing.', icon: 'mowing' },
+  { id: 2, documentId: '2', name: 'Hedge Trimming', slug: 'hedge-trimming', shortDescription: 'Professional hedge and bush trimming services.', icon: 'hedge_trimming' },
+  { id: 3, documentId: '3', name: 'Leaf Removal', slug: 'leaf-removal', shortDescription: 'Spring and fall leaf removal services.', icon: 'leaf_removal' },
+  { id: 4, documentId: '4', name: 'Fertilizing', slug: 'fertilizing', shortDescription: 'Non-pesticide lawn fertilization.', icon: 'fertilizing' },
+  { id: 5, documentId: '5', name: 'Mulching', slug: 'mulching', shortDescription: 'Professional mulch installation services.', icon: 'mulching' },
+  { id: 6, documentId: '6', name: 'Overseeding', slug: 'overseeding', shortDescription: 'Spring and fall overseeding.', icon: 'overseeding' },
+  { id: 7, documentId: '7', name: 'Snow Removal', slug: 'snow-removal', shortDescription: 'Reliable snow removal services.', icon: 'snow_removal' },
+  { id: 8, documentId: '8', name: 'Salting', slug: 'salting', shortDescription: 'Rock salt and calcium chloride services.', icon: 'salting' },
+];
 
-const html = blocks?.map(renderNode).join('') || '';
+const DEFAULT_SERVICE_AREAS = ['Flint', 'Flint Township', 'Flushing', 'Mt. Morris', 'Grand Blanc'];
+const DEFAULT_YARDBOOK_URL = 'http://ydbk.co/137258';
+const DEFAULT_PHONE = '(810) 309-9528';
+
+const displayServices = services.length > 0 ? services : DEFAULT_SERVICES;
+const displayAreas = serviceAreas.length > 0 ? serviceAreas.map(a => a.name) : DEFAULT_SERVICE_AREAS;
 ---
 
-<div class="prose prose-lg max-w-none" set:html={html} />
+{blocks && blocks.length > 0 ? (
+  blocks.map((block) => {
+    if (block.__component === 'shared.hero') {
+      const hero = block as HeroBlock;
+      return (
+        <section class="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 overflow-hidden">
+          {hero.backgroundImage && (
+            <div class="absolute inset-0 bg-cover bg-center opacity-20" style={`background-image: url(${getFullImageUrl(hero.backgroundImage)})`}></div>
+          )}
+          <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50"></div>
+          
+          <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+            <div class="max-w-3xl">
+              <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                {hero.title}
+              </h1>
+              {hero.subtitle && (
+                <p class="text-xl lg:text-2xl text-primary-100 mb-8 max-w-2xl">
+                  {hero.subtitle}
+                </p>
+              )}
+              <div class="flex flex-col sm:flex-row gap-4">
+                {hero.ctaButton && hero.ctaLink && (
+                  <a
+                    href={hero.ctaLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 bg-accent-500 hover:bg-accent-600 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    {hero.ctaButton}
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </a>
+                )}
+                <a
+                  href={`tel:${DEFAULT_PHONE.replace(/\D/g, '')}`}
+                  class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all border border-white/20"
+                >
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  {DEFAULT_PHONE}
+                </a>
+              </div>
+            </div>
+          </div>
 
-<style>
-  .prose ul li {
-    @apply text-gray-700;
-  }
-  .prose ol li {
-    @apply text-gray-700;
-  }
-  .prose code {
-    @apply bg-gray-100 px-1 py-0.5 rounded text-sm;
-  }
-  .prose pre code {
-    @apply bg-transparent p-0;
-  }
-</style>
+          <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+        </section>
+      );
+    }
+
+    if (block.__component === 'shared.service-grid') {
+      const grid = block as ServiceGridBlock;
+      const gridServices = grid.services?.data || displayServices;
+      return (
+        <section class="py-16 lg:py-24 bg-gray-50">
+          <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+              <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                {grid.title || 'Our Services'}
+              </h2>
+              {grid.subtitle && (
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                  {grid.subtitle}
+                </p>
+              )}
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {gridServices.map((service) => (
+                <a
+                  href={`/services/${service.slug}`}
+                  class="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-200"
+                >
+                  <div class="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-600 transition-colors">
+                    <svg class="w-7 h-7 text-primary-600 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                  </div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+                    {service.name}
+                  </h3>
+                  <p class="text-gray-600 text-sm line-clamp-2">
+                    {service.shortDescription}
+                  </p>
+                  <div class="mt-4 flex items-center text-primary-600 font-medium text-sm">
+                    Learn more
+                    <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            <div class="text-center mt-12">
+              <a
+                href="/services"
+                class="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                View All Services
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (block.__component === 'shared.service-areas') {
+      const areas = block as ServiceAreasBlock;
+      return (
+        <section class="py-16 lg:py-24 bg-white">
+          <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+              <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                {areas.title || 'Service Areas'}
+              </h2>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+              <div class="bg-gray-100 rounded-2xl overflow-hidden aspect-video lg:aspect-auto lg:h-96 relative">
+                {areas.mapImage && (
+                  <img 
+                    src={getFullImageUrl(areas.mapImage)} 
+                    alt="Service Area Map" 
+                    class="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
+                {!areas.mapImage && (
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center p-8">
+                      <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <p class="text-gray-500 font-medium">Service Area Map</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-6">Areas We Serve</h3>
+                <div class="grid grid-cols-2 gap-4">
+                  {displayAreas.map((area, index) => (
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-primary-600 font-bold text-sm">{index + 1}</span>
+                      </div>
+                      <span class="text-gray-700 font-medium">{area}</span>
+                    </div>
+                  ))}
+                </div>
+                <p class="mt-6 text-gray-600">
+                  Don't see your area? Call us at <a href="tel:8103099528" class="text-primary-600 font-semibold hover:underline">{DEFAULT_PHONE}</a> to check if we service your location.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (block.__component === 'shared.cta-banner') {
+      const cta = block as CTABlock;
+      return (
+        <section class="py-16 lg:py-24 bg-primary-600">
+          <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl lg:text-4xl font-bold text-white mb-4">
+              {cta.title || 'Ready to transform your lawn?'}
+            </h2>
+            {cta.description && (
+              <p class="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
+                {cta.description}
+              </p>
+            )}
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              {cta.buttonText && cta.buttonLink && (
+                <a
+                  href={cta.buttonLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center justify-center gap-2 bg-accent-500 hover:bg-accent-600 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl"
+                >
+                  {cta.buttonText}
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </a>
+              )}
+              <a
+                href={`tel:${(cta.phoneNumber || DEFAULT_PHONE).replace(/\D/g, '')}`}
+                class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all border border-white/20"
+              >
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                {cta.phoneNumber || DEFAULT_PHONE}
+              </a>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (block.__component === 'shared.text-block') {
+      const text = block as TextBlock;
+      const alignment = text.alignment || 'left';
+      return (
+        <section class="py-16 lg:py-20">
+          <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class:list={['prose', 'max-w-none', {
+              'text-left': alignment === 'left',
+              'text-center': alignment === 'center',
+              'text-right': alignment === 'right',
+            }]}>
+              {text.heading && (
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">{text.heading}</h2>
+              )}
+              {text.content && (
+                <div class="text-gray-600">
+                  {text.content.map((block) => (
+                    <p class="mb-4 whitespace-pre-line">{block.text}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    if (block.__component === 'shared.image-grid') {
+      const grid = block as ImageGridBlock;
+      const images = grid.images?.data || galleryItems;
+      return (
+        <section class="py-16 lg:py-20">
+          <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            {grid.title && (
+              <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">{grid.title}</h2>
+            )}
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {images.map((item) => (
+                <div class="group relative aspect-square rounded-2xl overflow-hidden bg-gray-100">
+                  {item.image && (
+                    <img 
+                      src={getImageFormatUrl(item.image, 'large')} 
+                      alt={item.title}
+                      class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  )}
+                  {!item.image && (
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <svg class="w-16 h-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                  <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end">
+                    <div class="p-6">
+                      <h3 class="text-white font-semibold text-lg">{item.title}</h3>
+                      {item.description && (
+                        <p class="text-white/80 text-sm">{item.description}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    return null;
+  })
+) : (
+  <slot />
+)}
