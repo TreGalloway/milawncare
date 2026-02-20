@@ -1,0 +1,77 @@
+---
+const companyName = 'MI Premier Lawn Care, L.L.C';
+const phoneNumber = '(810) 309-9528';
+const currentYear = new Date().getFullYear();
+
+const serviceAreas = [
+  'Flint',
+  'Flint Township',
+  'Flushing',
+  'Mt. Morris',
+  'Grand Blanc',
+];
+---
+
+<footer class="bg-gray-900 text-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div class="lg:col-span-2">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </div>
+          <span class="text-xl font-bold">{companyName}</span>
+        </div>
+        <p class="text-gray-400 mb-6 max-w-md">
+          Professional lawn care services in Flint, MI and surrounding areas. 
+          Free estimates on all services. Quality you can trust.
+        </p>
+        <div class="flex flex-col gap-2">
+          <a
+            href={`tel:${phoneNumber.replace(/\D/g, '')}`}
+            class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+          >
+            <svg class="w-5 h-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            {phoneNumber}
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold mb-4 text-accent-400">Services</h3>
+        <ul class="space-y-2">
+          <li><a href="/services" class="text-gray-400 hover:text-white transition-colors">All Services</a></li>
+          <li><a href="/services/mowing" class="text-gray-400 hover:text-white transition-colors">Mowing</a></li>
+          <li><a href="/services/landscaping" class="text-gray-400 hover:text-white transition-colors">Landscaping</a></li>
+          <li><a href="/services/snow-removal" class="text-gray-400 hover:text-white transition-colors">Snow Removal</a></li>
+          <li><a href="/services/fertilizing" class="text-gray-400 hover:text-white transition-colors">Fertilizing</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold mb-4 text-accent-400">Service Areas</h3>
+        <ul class="space-y-2">
+          {serviceAreas.map((area) => (
+            <li class="text-gray-400">{area}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-800 mt-10 pt-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-gray-400 text-sm">
+          &copy; {currentYear} {companyName}. All rights reserved.
+        </p>
+        <div class="flex gap-4">
+          <a href="/" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
+          <a href="/" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

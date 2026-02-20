@@ -1,0 +1,66 @@
+---
+interface Props {
+  title?: string;
+  subtitle?: string;
+}
+
+const {
+  title = "Service Areas",
+  subtitle = "Proudly serving the greater Flint area"
+} = Astro.props;
+
+const serviceAreas = [
+  "Flint",
+  "Flint Township",
+  "Flushing",
+  "Mt. Morris",
+  "Grand Blanc"
+];
+---
+
+<section class="py-16 lg:py-24 bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+        {title}
+      </h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        {subtitle}
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8 items-center">
+      <div class="bg-gray-100 rounded-2xl overflow-hidden aspect-video lg:aspect-auto lg:h-96 relative">
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="text-center p-8">
+            <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-10 h-10 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <p class="text-gray-500 font-medium">Service Area Map</p>
+            <p class="text-gray-400 text-sm mt-1">[Upload map image from Strapi]</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-xl font-bold text-gray-900 mb-6">Areas We Serve</h3>
+        <div class="grid grid-cols-2 gap-4">
+          {serviceAreas.map((area, index) => (
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-primary-600 font-bold text-sm">{index + 1}</span>
+              </div>
+              <span class="text-gray-700 font-medium">{area}</span>
+            </div>
+          ))}
+        </div>
+        <p class="mt-6 text-gray-600">
+          Don't see your area? Call us at <a href="tel:8103099528" class="text-primary-600 font-semibold hover:underline">(810) 309-9528</a> to check if we service your location.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

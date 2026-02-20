@@ -1,10 +1,13 @@
 ---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
 interface Props {
   title: string;
   description?: string;
 }
 
-const { title, description = 'Milawn - A modern website' } = Astro.props;
+const { title, description = 'MI Premier Lawn Care - Professional lawn care services in Flint, MI and surrounding areas. Free estimates on all services.' } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -14,12 +17,13 @@ const { title, description = 'Milawn - A modern website' } = Astro.props;
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>{title}</title>
+  <title>{title} | MI Premier Lawn Care</title>
   <style is:global>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     html {
       font-family: 'Inter', system-ui, sans-serif;
+      scroll-behavior: smooth;
     }
     
     body {
@@ -28,30 +32,12 @@ const { title, description = 'Milawn - A modern website' } = Astro.props;
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
-  <header class="border-b border-gray-200 bg-white">
-    <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <a href="/" class="text-xl font-bold text-primary-600 hover:text-primary-700">
-          Milawn
-        </a>
-        <div class="flex space-x-8">
-          <a href="/" class="text-gray-600 hover:text-gray-900 transition">Home</a>
-          <a href="/about" class="text-gray-600 hover:text-gray-900 transition">About</a>
-        </div>
-      </div>
-    </nav>
-  </header>
+  <Header />
   
   <main class="flex-grow">
     <slot />
   </main>
   
-  <footer class="bg-gray-50 border-t border-gray-200">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <p class="text-center text-gray-600">
-        © {new Date().getFullYear()} Milawn. Built with Astro & Strapi.
-      </p>
-    </div>
-  </footer>
+  <Footer />
 </body>
 </html>

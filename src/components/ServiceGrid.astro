@@ -1,0 +1,107 @@
+---
+import ServiceCard from './ServiceCard.astro';
+
+interface Service {
+  name: string;
+  slug: string;
+  shortDescription: string;
+  icon?: string;
+}
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+}
+
+const {
+  title = "Our Services",
+  subtitle = "Professional lawn care you can trust"
+} = Astro.props;
+
+const services: Service[] = [
+  {
+    name: "Mowing",
+    slug: "mowing",
+    shortDescription: "Weekly and biweekly mowing with string trimming, edging, and blowing.",
+    icon: "mowing"
+  },
+  {
+    name: "Hedge Trimming",
+    slug: "hedge-trimming",
+    shortDescription: "Professional hedge and bush trimming services.",
+    icon: "hedge_trimming"
+  },
+  {
+    name: "Leaf Removal",
+    slug: "leaf-removal",
+    shortDescription: "Spring and fall leaf removal services.",
+    icon: "leaf_removal"
+  },
+  {
+    name: "Fertilizing",
+    slug: "fertilizing",
+    shortDescription: "Non-pesticide lawn fertilization for a healthier, greener lawn.",
+    icon: "fertilizing"
+  },
+  {
+    name: "Mulching",
+    slug: "mulching",
+    shortDescription: "Professional mulch installation services.",
+    icon: "mulching"
+  },
+  {
+    name: "Overseeding",
+    slug: "overseeding",
+    shortDescription: "Spring and fall overseeding for a thicker lawn.",
+    icon: "overseeding"
+  },
+  {
+    name: "Snow Removal",
+    slug: "snow-removal",
+    shortDescription: "Reliable snow removal services for residential properties.",
+    icon: "snow_removal"
+  },
+  {
+    name: "Salting",
+    slug: "salting",
+    shortDescription: "Rock salt and calcium chloride services.",
+    icon: "salting"
+  }
+];
+---
+
+<section class="py-16 lg:py-24 bg-gray-50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+        {title}
+      </h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        {subtitle}
+      </p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {services.map((service) => (
+        <ServiceCard
+          name={service.name}
+          description={service.shortDescription}
+          icon={service.icon}
+          slug={service.slug}
+        />
+      ))}
+    </div>
+
+    <div class="text-center mt-12">
+      <a
+        href="/services"
+        class="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+      >
+        View All Services
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
