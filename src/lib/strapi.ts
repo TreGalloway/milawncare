@@ -37,19 +37,18 @@ export function getImageUrl(image: { url: string } | undefined): string {
 
 export async function fetchPages(isPreview = false): Promise<Page[]> {
   try {
-    const stateQuery = getPublicationStateQuery(isPreview);
     const res = await fetch(
-      `${STRAPI_URL}/api/pages?${stateQuery}&populate[heroImage]=*&populate[blocks][populate]=*`,
+      `${STRAPI_URL}/api/pages`,
       { headers: getHeaders() }
     );
     
     if (!res.ok) {
-      console.warn('Failed to fetch pages:', res.statusText);
+      console.warn('Failed to fetch pages:', res.status, res.statusText);
       return [];
     }
     
-    const json: StrapiResponse<Page> = await res.json();
-    return json.data;
+    const json = await res.json();
+    return json.data || [];
   } catch (e) {
     console.warn('Failed to fetch pages:', e);
     return [];
@@ -58,19 +57,18 @@ export async function fetchPages(isPreview = false): Promise<Page[]> {
 
 export async function fetchPage(slug: string, isPreview = false): Promise<Page | null> {
   try {
-    const stateQuery = getPublicationStateQuery(isPreview);
     const res = await fetch(
-      `${STRAPI_URL}/api/pages?filters[slug][$eq]=${slug}&${stateQuery}&populate[heroImage]=*&populate[blocks][populate]=*`,
+      `${STRAPI_URL}/api/pages?filters[slug][$eq]=${slug}`,
       { headers: getHeaders() }
     );
     
     if (!res.ok) {
-      console.warn('Failed to fetch page:', res.statusText);
+      console.warn('Failed to fetch page:', res.status, res.statusText);
       return null;
     }
     
-    const json: StrapiResponse<Page> = await res.json();
-    return json.data[0] || null;
+    const json = await res.json();
+    return json.data?.[0] || null;
   } catch (e) {
     console.warn('Failed to fetch page:', e);
     return null;
@@ -102,19 +100,18 @@ export async function fetchPageById(documentId: string, isPreview = false): Prom
 
 export async function fetchServices(isPreview = false): Promise<Service[]> {
   try {
-    const stateQuery = getPublicationStateQuery(isPreview);
     const res = await fetch(
-      `${STRAPI_URL}/api/services?${stateQuery}&sort[tabOrder]=asc&populate[heroImage]=*`,
+      `${STRAPI_URL}/api/services?sort[tabOrder]=asc`,
       { headers: getHeaders() }
     );
     
     if (!res.ok) {
-      console.warn('Failed to fetch services:', res.statusText);
+      console.warn('Failed to fetch services:', res.status, res.statusText);
       return [];
     }
     
-    const json: StrapiResponse<Service> = await res.json();
-    return json.data;
+    const json = await res.json();
+    return json.data || [];
   } catch (e) {
     console.warn('Failed to fetch services:', e);
     return [];
@@ -123,19 +120,18 @@ export async function fetchServices(isPreview = false): Promise<Service[]> {
 
 export async function fetchService(slug: string, isPreview = false): Promise<Service | null> {
   try {
-    const stateQuery = getPublicationStateQuery(isPreview);
     const res = await fetch(
-      `${STRAPI_URL}/api/services?filters[slug][$eq]=${slug}&${stateQuery}&populate[heroImage]=*`,
+      `${STRAPI_URL}/api/services?filters[slug][$eq]=${slug}`,
       { headers: getHeaders() }
     );
     
     if (!res.ok) {
-      console.warn('Failed to fetch service:', res.statusText);
+      console.warn('Failed to fetch service:', res.status, res.statusText);
       return null;
     }
     
-    const json: StrapiResponse<Service> = await res.json();
-    return json.data[0] || null;
+    const json = await res.json();
+    return json.data?.[0] || null;
   } catch (e) {
     console.warn('Failed to fetch service:', e);
     return null;
@@ -146,19 +142,18 @@ export async function fetchService(slug: string, isPreview = false): Promise<Ser
 
 export async function fetchServiceAreas(isPreview = false): Promise<ServiceArea[]> {
   try {
-    const stateQuery = getPublicationStateQuery(isPreview);
     const res = await fetch(
-      `${STRAPI_URL}/api/service-areas?${stateQuery}&sort[displayOrder]=asc`,
+      `${STRAPI_URL}/api/service-areas?sort[displayOrder]=asc`,
       { headers: getHeaders() }
     );
     
     if (!res.ok) {
-      console.warn('Failed to fetch service areas:', res.statusText);
+      console.warn('Failed to fetch service areas:', res.status, res.statusText);
       return [];
     }
     
-    const json: StrapiResponse<ServiceArea> = await res.json();
-    return json.data;
+    const json = await res.json();
+    return json.data || [];
   } catch (e) {
     console.warn('Failed to fetch service areas:', e);
     return [];
@@ -169,19 +164,18 @@ export async function fetchServiceAreas(isPreview = false): Promise<ServiceArea[
 
 export async function fetchGalleryItems(isPreview = false): Promise<GalleryItem[]> {
   try {
-    const stateQuery = getPublicationStateQuery(isPreview);
     const res = await fetch(
-      `${STRAPI_URL}/api/gallery-items?${stateQuery}&sort[date]=desc&populate[image]=*`,
+      `${STRAPI_URL}/api/gallery-items?sort[date]=desc`,
       { headers: getHeaders() }
     );
     
     if (!res.ok) {
-      console.warn('Failed to fetch gallery items:', res.statusText);
+      console.warn('Failed to fetch gallery items:', res.status, res.statusText);
       return [];
     }
     
-    const json: StrapiResponse<GalleryItem> = await res.json();
-    return json.data;
+    const json = await res.json();
+    return json.data || [];
   } catch (e) {
     console.warn('Failed to fetch gallery items:', e);
     return [];
@@ -192,19 +186,16 @@ export async function fetchGalleryItems(isPreview = false): Promise<GalleryItem[
 
 export async function fetchSiteSettings(isPreview = false): Promise<SiteSettings | null> {
   try {
-    const stateQuery = getPublicationStateQuery(isPreview);
-    const res = await fetch(
-      `${STRAPI_URL}/api/site-settings?${stateQuery}&populate[qrCodeImage]=*`,
-      { headers: getHeaders() }
-    );
+    const url = `${STRAPI_URL}/api/site-setting`;
+    const res = await fetch(url, { headers: getHeaders() });
     
     if (!res.ok) {
-      console.warn('Failed to fetch site settings:', res.statusText);
+      console.warn('Failed to fetch site settings:', res.status, res.statusText);
       return null;
     }
     
-    const json: StrapiResponse<SiteSettings> = await res.json();
-    return json.data[0] || null;
+    const json = await res.json();
+    return json.data || null;
   } catch (e) {
     console.warn('Failed to fetch site settings:', e);
     return null;
