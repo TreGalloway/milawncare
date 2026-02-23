@@ -1,18 +1,40 @@
-# AGENTS.md - Milawn Project Guide
+# AGENTS.md - MI Premier Lawn Care Project Guide
+
+## Project Overview
+
+This is a website for MI Premier Lawn Care, a lawn care business in Flint, MI. It uses:
+- **Frontend**: Astro 4.x + Tailwind CSS (static site generation)
+- **Backend**: Strapi v5 (headless CMS with SQLite)
+- **Colors**: Green (#22c55e), Yellow (#eab308), White
 
 ## Quick Start Commands
 
+### Frontend (Astro)
 ```bash
-# Frontend (Astro)
-pnpm dev          # Start dev server
-pnpm build        # Build static site
-pnpm preview      # Preview production build
+pnpm dev              # Start dev server at http://localhost:4321
+pnpm build           # Build static site to dist/
+pnpm preview         # Preview production build
 
-# Backend (Strapi)
-cd strapi-backend && npm run develop  # Start Strapi
-npm run build     # Build Strapi for production
+# Build with specific base URL
+pnpm build -- --base=/your-base-path
+```
 
-# Single test (when tests exist)
+### Backend (Strapi)
+```bash
+# Requires Node 20.x - use fnm or nvm to manage versions
+fnm install 20
+fnm use 20
+
+cd strapi-backend
+npm install           # Install dependencies (first time)
+npm run develop       # Start Strapi at http://localhost:1337
+npm run build         # Build Strapi admin for production
+```
+
+### Testing
+```bash
+# Tests not currently implemented - when added, use:
+pnpm test
 pnpm test -- --testNamePattern="specific-test"
 ```
 
@@ -23,14 +45,15 @@ pnpm test -- --testNamePattern="specific-test"
 - **Interfaces**: Define in `src/types/index.ts` - prefix with `I` (e.g., `IPage`)
 - **Props**: Use `Props` interface in Astro components
 - **Functions**: Use arrow functions for components, named functions for utilities
+- **Async**: Always handle async operations with try/catch and return fallbacks
 
 ### Imports & Organization
 ```typescript
 // Order: built-ins → external → internal → types
 import { useState } from 'react';
 import { Image } from 'astro:assets';
-import Layout from '@layouts/Layout.astro';
-import type { IPage } from '@types/index';
+import Layout from '../layouts/Layout.astro';
+import type { IPage } from '../types/index';
 ```
 
 ### Naming Conventions
@@ -39,31 +62,37 @@ import type { IPage } from '@types/index';
 - **Constants**: UPPER_SNAKE_CASE (`API_BASE_URL`)
 - **Props**: camelCase (`heroTitle`)
 - **CSS Classes**: kebab-case (`hero-section`)
+- **Files**: kebab-case (`service-card.astro`)
 
 ### Error Handling
 ```typescript
-// Always handle API errors gracefully
-const fetchPages = async (): Promise<IPage[]> => {
+// ALWAYS handle API errors gracefully - never let errors break the page
+export async function fetchServices(): Promise<Service[]> {
   try {
-    const response = await fetch(`${API_URL}/api/pages`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } catch (error) {
-    console.error('Failed to fetch pages:', error);
-    return []; // Return empty array instead of breaking
+    const res = await fetch(`${STRAPI_URL}/api/services`);
+    if (!res.ok) {
+      console.warn('Failed to fetch services:', res.status);
+      return [];  // Return empty array - frontend will show fallback
+    }
+    const json = await res.json();
+    return json.data || [];
+  } catch (e) {
+    console.warn('Failed to fetch services:', e);
+    return [];  // Always return fallback, never throw
   }
-};
+}
 ```
 
 ### Component Structure
 ```astro
 ---
-// Props interface
-export interface Props {
+// Props interface - always define at top
+interface Props {
   title: string;
   description?: string;
 }
 
+// Destructure with defaults
 const { title, description = '' } = Astro.props;
 ---
 
@@ -82,51 +111,111 @@ const { title, description = '' } = Astro.props;
 ### Tailwind CSS Guidelines
 - Use utility classes for styling
 - Create components for repeated patterns
-- Use `@apply` for component styles
-- Mobile-first responsive design
-- Color variables in `tailwind.config.js`
+- Use `@apply` for component-specific styles
+- Mobile-first responsive design (use `sm:`, `md:`, `lg:` breakpoints)
+- Color variables defined in `tailwind.config.mjs`:
+  - `primary`: Green shades (#22c55e base)
+  - `accent`: Yellow shades (#eab308 base)
 
-### API Patterns
-- **Base URL**: Use env variables (`import.meta.env.STRAPI_URL`)
-- **Error States**: Always provide fallback content
-- **Loading**: Use Astro's `client:load` for dynamic content
-- **Caching**: Leverage SSG with `getStaticPaths()`
+## API Integration
 
-### File Structure
+### Strapi Endpoints
+The frontend fetches from these Strapi content types:
+- `/api/pages` - Website pages with Dynamic Zones
+- `/api/services` - Service offerings
+- `/api/service-areas` - Service areas
+- `/api/gallery-items` - Gallery images
+- `/api/site-setting` - Site settings (single type)
+
+### Fetching Pattern
+```typescript
+// Always use getHeaders() for authentication
+import { getHeaders } from '../lib/strapi';
+
+const res = await fetch(`${STRAPI_URL}/api/services`, {
+  headers: getHeaders()
+});
+```
+
+### Environment Variables
+Create `.env` file (never commit this):
+```
+STRAPI_URL=http://localhost:1337
+STRAPI_API_TOKEN=your-api-token-from-strapi-admin
+PREVIEW_SECRET=your-preview-secret
+```
+
+## File Structure
 ```
 src/
-├── components/           # Reusable components
-├── layouts/             # Page layouts
-├── lib/                # Utilities & API
-├── pages/              # Astro pages
-├── styles/             # Global styles
-└── types/              # TypeScript definitions
+├── components/           # Reusable Astro components
+│   ├── Header.astro      # Navigation header
+│   ├── Footer.astro      # Site footer
+│   ├── Hero.astro        # Hero section
+│   ├── ServiceCard.astro # Service display card
+│   ├── ServiceGrid.astro # Grid of services
+│   ├── CTABanner.astro   # Call-to-action banner
+│   ├── ServiceAreas.astro # Service areas display
+│   └── BlocksRenderer.astro # Dynamic Zone renderer
+├── layouts/
+│   └── Layout.astro     # Base page layout
+├── lib/
+│   ├── strapi.ts        # API fetch functions
+│   └── siteData.ts      # Site settings helpers
+├── pages/
+│   ├── index.astro      # Homepage
+│   ├── about.astro      # About page
+│   ├── contact.astro   # Contact page
+│   ├── gallery.astro   # Gallery page
+│   ├── services/
+│   │   ├── index.astro   # Services listing
+│   │   └── [slug].astro  # Individual service pages
+│   └── [slug].astro    # Dynamic page routes
+└── types/
+    └── index.ts        # TypeScript interfaces
 ```
 
-### Commit Messages
+## Strapi Content Types
+
+### Service
+- name (Text), slug (UID), shortDescription, fullDescription (Rich Text), icon, tabOrder, pricingTable (JSON), ctaButton (JSON), heroImage
+
+### ServiceArea  
+- name (Text), displayOrder (Number)
+
+### GalleryItem
+- title (Text), image (Media), description (Text), date (Date)
+
+### SiteSettings (Single)
+- companyName, phoneNumber, email, address, yardbookUrl, qrCodeImage, heroTitle, heroSubtitle
+
+### Page (with Dynamic Zone)
+- title, slug, blocks (Dynamic Zone with: hero, serviceGrid, serviceAreas, ctaBanner, textBlock, imageGrid)
+
+## Commit Messages
+Follow conventional commits:
 - `feat: add new hero section component`
 - `fix: resolve service card alignment issue`
 - `chore: update dependencies`
+- `refactor: simplify Strapi fetch functions`
 
-### Environment Setup
-```bash
-# Backend
-STRAPI_URL=http://localhost:1337
-STRAPI_API_TOKEN=your-token
-PREVIEW_SECRET=preview-key
-
-# Frontend (Astro)
-PUBLIC_STRAPI_URL=http://localhost:1337
-```
-
-### Testing Strategy
+## Testing Strategy
 - Use Vitest for component testing
-- Test API error handling
-- Responsive design testing
-- Strapi data validation tests
+- Test API error handling (ensure fallbacks work)
+- Test responsive design at mobile/tablet/desktop
+- Validate Strapi data structure matches types
 
-### Performance Guidelines
-- Use Astro Image component for images
+## Performance Guidelines
+- Use Astro's built-in image optimization
 - Lazy load non-critical components
 - Minimize client-side JavaScript
-- Preload critical fonts and images
+- Preload critical fonts (Inter)
+- Leverage SSG with getStaticPaths() for all pages
+
+## Important Notes
+
+1. **Node Version**: Strapi requires Node 20.x - use `fnm` or `nvm` to manage
+2. **API Token**: Get from Strapi Admin → Settings → API Tokens
+3. **Publishing**: Always publish content in Strapi Content Manager (click Publish button)
+4. **Single Types**: Site Settings uses `/api/site-setting` (singular), not plural
+5. **Fallbacks**: Always provide hardcoded fallback content when Strapi is unavailable
