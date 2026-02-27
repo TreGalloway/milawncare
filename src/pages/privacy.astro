@@ -1,0 +1,42 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fetchPage } from '../lib/strapi';
+
+const page = await fetchPage('privacy');
+const pageTitle = page?.metaTitle || 'Privacy Policy';
+const pageDescription = page?.metaDescription || 'Privacy Policy for MI Premier Lawn Care';
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <section class="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 py-16 lg:py-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4">
+        Privacy Policy
+      </h1>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+  </section>
+
+  <section class="py-16 lg:py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="prose prose-lg max-w-none">
+        <p>At MI Premier Lawn Care, we value your privacy and are committed to protecting your personal information.</p>
+        
+        <h2>Information We Collect</h2>
+        <p>We collect information you provide to us directly, such as your name, phone number, email address, and property address when requesting services.</p>
+        
+        <h2>How We Use Your Information</h2>
+        <p>We use your information to:</p>
+        <ul>
+          <li>Provide lawn care services</li>
+          <li>Communicate with you about service scheduling</li>
+          <li>Respond to your inquiries</li>
+          <li>Improve our services</li>
+        </ul>
+        
+        <h2>Contact Us</h2>
+        <p>If you have any questions about this Privacy Policy, please contact us at mipremierlawncare@gmail.com</p>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -1,4 +1,6 @@
 ---
+import { fetchServiceAreas, fetchServices } from '../lib/strapi';
+
 interface Props {
   siteData?: {
     companyName: string;
@@ -6,6 +8,7 @@ interface Props {
     yardbookUrl: string;
     email?: string;
     address?: string;
+    companyDescription?: string;
   };
 }
 
@@ -13,17 +16,25 @@ const DEFAULT_SITE_DATA = {
   companyName: 'MI Premier Lawn Care, L.L.C',
   phoneNumber: '(810) 309-9528',
   yardbookUrl: 'http://ydbk.co/137258',
+  companyDescription: 'Professional lawn care services in Flint, MI and surrounding areas. Free estimates on all services. Quality you can trust.',
 };
 
 const siteData = Astro.props.siteData || DEFAULT_SITE_DATA;
 
-const serviceAreasList = [
-  'Flint',
-  'Flint Township',
-  'Flushing',
-  'Mt. Morris',
-  'Grand Blanc',
-];
+const serviceAreasResult = await fetchServiceAreas();
+const serviceAreasList = serviceAreasResult.length > 0 
+  ? serviceAreasResult.map(a => a.name)
+  : ['Flint', 'Flint Township', 'Flushing', 'Mt. Morris', 'Grand Blanc'];
+
+const servicesResult = await fetchServices();
+const footerServices = servicesResult.length > 0 
+  ? servicesResult.slice(0, 4) 
+  : [
+      { name: 'Mowing', slug: 'mowing' },
+      { name: 'Snow Removal', slug: 'snow-removal' },
+      { name: 'Fertilizing', slug: 'fertilizing' },
+      { name: 'Leaf Removal', slug: 'leaf-removal' },
+    ];
 
 const currentYear = new Date().getFullYear();
 ---
@@ -40,8 +51,7 @@ const currentYear = new Date().getFullYear();
           </div>
         </div>
         <p class="text-gray-400 mb-6 max-w-md">
-          Professional lawn care services in Flint, MI and surrounding areas. 
-          Free estimates on all services. Quality you can trust.
+          {siteData.companyDescription || DEFAULT_SITE_DATA.companyDescription}
         </p>
         <div class="flex flex-col gap-2">
           <a
@@ -71,9 +81,9 @@ const currentYear = new Date().getFullYear();
         <h3 class="text-lg font-semibold mb-4 text-accent-400">Services</h3>
         <ul class="space-y-2">
           <li><a href="/services" class="text-gray-400 hover:text-white transition-colors">All Services</a></li>
-          <li><a href="/services/mowing" class="text-gray-400 hover:text-white transition-colors">Mowing</a></li>
-          <li><a href="/services/snow-removal" class="text-gray-400 hover:text-white transition-colors">Snow Removal</a></li>
-          <li><a href="/services/fertilizing" class="text-gray-400 hover:text-white transition-colors">Fertilizing</a></li>
+          {footerServices.map((service) => (
+            <li><a href={`/services/${service.slug}`} class="text-gray-400 hover:text-white transition-colors">{service.name}</a></li>
+          ))}
         </ul>
       </div>
 
@@ -93,8 +103,8 @@ const currentYear = new Date().getFullYear();
           &copy; {currentYear} {siteData.companyName}. All rights reserved.
         </p>
         <div class="flex gap-4">
-          <a href="/" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
-          <a href="/" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a>
+          <a href="/privacy" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
+          <a href="/terms" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a>
         </div>
       </div>
     </div>

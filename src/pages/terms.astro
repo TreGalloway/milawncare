@@ -1,0 +1,39 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fetchPage } from '../lib/strapi';
+
+const page = await fetchPage('terms');
+const pageTitle = page?.metaTitle || 'Terms of Service';
+const pageDescription = page?.metaDescription || 'Terms of Service for MI Premier Lawn Care';
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <section class="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 py-16 lg:py-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4">
+        Terms of Service
+      </h1>
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+  </section>
+
+  <section class="py-16 lg:py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="prose prose-lg max-w-none">
+        <p>Welcome to MI Premier Lawn Care. By using our services, you agree to these terms.</p>
+        
+        <h2>Service Agreement</h2>
+        <p>By scheduling lawn care services with us, you agree to the terms outlined in your service agreement. Service agreements are negotiated individually and may include weekly, bi-weekly, or one-time visits.</p>
+        
+        <h2>Cancellation Policy</h2>
+        <p>We request at least 24 hours notice for cancellation or rescheduling of services. Late cancellations may incur a fee.</p>
+        
+        <h2>Payment Terms</h2>
+        <p>Payment is due upon completion of service unless other arrangements have been made. Service agreement customers receive monthly invoices.</p>
+        
+        <h2>Contact Us</h2>
+        <p>If you have any questions about these Terms of Service, please contact us at mipremierlawncare@gmail.com</p>
+      </div>
+    </div>
+  </section>
+</Layout>
