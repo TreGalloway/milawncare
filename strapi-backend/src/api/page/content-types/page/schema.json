@@ -38,6 +38,17 @@
     },
     "metaDescription": {
       "type": "text"
+    },
+    "blocks": {
+      "type": "dynamiczone",
+      "components": [
+        "shared.text-block",
+        "shared.service-grid",
+        "shared.service-areas",
+        "shared.image-grid",
+        "shared.hero",
+        "shared.cta-banner"
+      ]
     }
   }
 }

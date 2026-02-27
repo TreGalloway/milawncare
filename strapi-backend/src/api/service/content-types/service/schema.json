@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "services",
+  "info": {
+    "singularName": "service",
+    "pluralName": "services",
+    "displayName": "Service"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "Name"
+    },
+    "shortDescription": {
+      "type": "string"
+    },
+    "fullDescription": {
+      "type": "blocks"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "tabOrder": {
+      "type": "integer"
+    },
+    "pricingTable": {
+      "type": "json"
+    },
+    "ctaButton": {
+      "type": "json"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}

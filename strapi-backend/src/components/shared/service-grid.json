@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_shared_service_grids",
+  "info": {
+    "displayName": "serviceGrid",
+    "icon": "dashboard"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "services": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::service.service"
+    }
+  },
+  "config": {}
+}

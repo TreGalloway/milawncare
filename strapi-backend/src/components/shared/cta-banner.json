@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_shared_cta_banners",
+  "info": {
+    "displayName": "ctaBanner",
+    "icon": "lightbulb"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "buttonText": {
+      "type": "string"
+    },
+    "buttonLink": {
+      "type": "string"
+    },
+    "phoneNumber": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

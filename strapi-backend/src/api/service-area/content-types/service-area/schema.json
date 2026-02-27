@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "service_areas",
+  "info": {
+    "singularName": "service-area",
+    "pluralName": "service-areas",
+    "displayName": "ServiceArea"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "companyName": {
+      "type": "string"
+    },
+    "displayOrder": {
+      "type": "integer"
+    }
+  }
+}
