@@ -2,6 +2,7 @@
 import ServiceCard from './ServiceCard.astro';
 
 interface Service {
+  documentId?: string;
   name: string;
   slug: string;
   shortDescription: string;
@@ -11,14 +12,16 @@ interface Service {
 interface Props {
   title?: string;
   subtitle?: string;
+  services?: Service[];
 }
 
 const {
   title = "Our Services",
-  subtitle = "Professional lawn care you can trust"
+  subtitle = "Professional lawn care you can trust",
+  services: providedServices
 } = Astro.props;
 
-const services: Service[] = [
+const DEFAULT_SERVICES: Service[] = [
   {
     name: "Mowing",
     slug: "mowing",
@@ -68,6 +71,12 @@ const services: Service[] = [
     icon: "salting"
   }
 ];
+
+const services = providedServices && providedServices.length > 0 ? providedServices : DEFAULT_SERVICES;
+
+function getDescription(service: Service): string {
+  return service.shortDescription || '';
+}
 ---
 
 <section class="py-16 lg:py-24 bg-gray-50">
@@ -85,7 +94,7 @@ const services: Service[] = [
       {services.map((service) => (
         <ServiceCard
           name={service.name}
-          description={service.shortDescription}
+          description={getDescription(service)}
           icon={service.icon}
           slug={service.slug}
         />

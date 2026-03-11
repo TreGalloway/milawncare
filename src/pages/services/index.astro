@@ -1,12 +1,27 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import BlocksRenderer from '../../components/BlocksRenderer.astro';
 import ServiceGrid from '../../components/ServiceGrid.astro';
 import CTABanner from '../../components/CTABanner.astro';
+import { fetchPage, fetchServices, fetchServiceAreas } from '../../lib/strapi';
 
-const pageTitle = "Our Services";
+const services = await fetchServices();
+const serviceAreas = await fetchServiceAreas();
+const page = await fetchPage('services');
+
+const pageTitle = page?.metaTitle || 'Our Services';
+const pageDescription = page?.metaDescription || 'Professional lawn care services in Flint, MI and surrounding areas.';
 ---
 
-<Layout title={pageTitle}>
+<Layout title={pageTitle} description={pageDescription}>
+  {page?.blocks && page.blocks.length > 0 ? (
+    <BlocksRenderer 
+      blocks={page.blocks} 
+      services={services}
+      serviceAreas={serviceAreas}
+    />
+  ) : (
+    <>
   <section class="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 py-16 lg:py-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -19,7 +34,9 @@ const pageTitle = "Our Services";
     <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
   </section>
 
-  <ServiceGrid />
+  <ServiceGrid services={services} />
 
   <CTABanner />
+    </>
+  )}
 </Layout>

@@ -1,11 +1,28 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import BlocksRenderer from '../components/BlocksRenderer.astro';
+import { fetchPage, fetchServices, fetchServiceAreas } from '../lib/strapi';
+
+const services = await fetchServices();
+const serviceAreas = await fetchServiceAreas();
+const page = await fetchPage('contact');
 
 const phoneNumber = "(810) 309-9528";
 const yardbookUrl = "http://ydbk.co/137258";
+
+const pageTitle = page?.metaTitle || 'Contact Us';
+const pageDescription = page?.metaDescription || 'Get in touch for a free estimate on our lawn care services';
 ---
 
-<Layout title="Contact Us">
+<Layout title={pageTitle} description={pageDescription}>
+  {page?.blocks && page.blocks.length > 0 ? (
+    <BlocksRenderer 
+      blocks={page.blocks} 
+      services={services}
+      serviceAreas={serviceAreas}
+    />
+  ) : (
+    <>
   <section class="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 py-16 lg:py-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -147,4 +164,6 @@ const yardbookUrl = "http://ydbk.co/137258";
       </div>
     </div>
   </section>
+    </>
+  )}
 </Layout>

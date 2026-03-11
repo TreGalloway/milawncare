@@ -33,14 +33,11 @@ const currentPath = Astro.url.pathname;
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16 lg:h-20">
       <a href="/" class="flex items-center gap-2">
-        <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
+        <div class="px-3 py-1.5 bg-primary-500 rounded-lg flex items-center justify-center">
+          <span class="text-white font-bold text-sm lg:text-base">
+            {siteData.companyName.replace(', L.L.C', '')}
+          </span>
         </div>
-        <span class="text-lg lg:text-xl font-bold text-gray-900 hidden sm:block">
-          {siteData.companyName.replace(', L.L.C', '')}
-        </span>
       </a>
 
       <nav class="hidden lg:flex items-center gap-8">
