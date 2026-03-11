@@ -6,5 +6,6 @@
     "paths": {
       "@/*": ["src/*"]
     }
-  }
+  },
+  "exclude": ["strapi-backend", "node_modules", "dist", ".tmp"]
 }
