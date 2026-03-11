@@ -5,7 +5,7 @@
 This is a website for MI Premier Lawn Care, a lawn care business in Flint, MI. It uses:
 - **Frontend**: Astro 4.x + Tailwind CSS (static site generation)
 - **Backend**: Strapi v5 (headless CMS with SQLite)
-- **Colors**: Green (#22c55e), Yellow (#eab308), White
+- **Colors**: Kelly Green (#4CBB17), Yellow (#eab308), White
 
 ## Quick Start Commands
 
@@ -114,7 +114,7 @@ const { title, description = '' } = Astro.props;
 - Use `@apply` for component-specific styles
 - Mobile-first responsive design (use `sm:`, `md:`, `lg:` breakpoints)
 - Color variables defined in `tailwind.config.mjs`:
-  - `primary`: Green shades (#22c55e base)
+  - `primary`: Kelly Green shades (#4CBB17 base)
   - `accent`: Yellow shades (#eab308 base)
 
 ## API Integration
@@ -165,8 +165,10 @@ src/
 ├── pages/
 │   ├── index.astro      # Homepage
 │   ├── about.astro      # About page
-│   ├── contact.astro   # Contact page
-│   ├── gallery.astro   # Gallery page
+│   ├── contact.astro    # Contact page
+│   ├── gallery.astro    # Gallery page
+│   ├── privacy.astro    # Privacy Policy page
+│   ├── terms.astro      # Terms of Service page
 │   ├── services/
 │   │   ├── index.astro   # Services listing
 │   │   └── [slug].astro  # Individual service pages
@@ -219,3 +221,24 @@ Follow conventional commits:
 3. **Publishing**: Always publish content in Strapi Content Manager (click Publish button)
 4. **Single Types**: Site Settings uses `/api/site-setting` (singular), not plural
 5. **Fallbacks**: Always provide hardcoded fallback content when Strapi is unavailable
+
+## Current Action Items
+
+### List 1: Strapi Updates (Done by Client)
+- [ ] Update email to `mipremierlawncare@gmail.com` in Site Settings
+- [ ] Add "City of Burton" to Service Areas
+- [ ] Change hero image to one with blue skies and striped lawns
+- [ ] Add "Company's Social Responsibility" section on About page
+- [ ] Update hours to "8 to 4, Monday through Thursday" on Contact page
+- [ ] Add three pricing categories (Weekly, Bi-weekly, Non-agreement) to services
+- [ ] Build Snow Removal pricing layout
+- [ ] Create Privacy Policy page in Strapi
+- [ ] Create Terms of Service page in Strapi
+
+### List 2: Code Changes (Done by Developer)
+- [x] Make Footer service areas dynamic (fetch from Strapi)
+- [x] Make Footer service links dynamic (fetch from Strapi Services)
+- [x] Fix Header company name to include L.L.C
+- [x] Create Privacy Policy page
+- [x] Create Terms of Service page
+- [x] Apply Kelly green (#4CBB17) throughout site
