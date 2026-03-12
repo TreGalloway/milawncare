@@ -57,8 +57,9 @@ export async function fetchPages(isPreview = false): Promise<Page[]> {
 
 export async function fetchPage(slug: string, isPreview = false): Promise<Page | null> {
   try {
+    const stateQuery = isPreview ? 'publicationState=preview' : 'publicationState=live';
     const res = await fetch(
-      `${STRAPI_URL}/api/pages?filters[slug][$eq]=${slug}`,
+      `${STRAPI_URL}/api/pages?filters[slug][$eq]=${slug}&${stateQuery}&populate=*`,
       { headers: getHeaders() }
     );
     
