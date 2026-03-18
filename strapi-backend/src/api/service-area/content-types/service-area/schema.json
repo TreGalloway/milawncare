@@ -11,7 +11,7 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "companyName": {
+    "areaName": {
       "type": "string"
     },
     "displayOrder": {

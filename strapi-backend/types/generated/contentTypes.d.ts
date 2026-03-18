@@ -513,7 +513,7 @@ export interface ApiServiceAreaServiceArea extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    companyName: Schema.Attribute.String;
+    areaName: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

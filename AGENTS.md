@@ -227,10 +227,10 @@ Follow conventional commits:
 ### List 1: Strapi Updates (Done by Client)
 - [ ] Update email to `mipremierlawncare@gmail.com` in Site Settings
 - [ ] Add "City of Burton" to Service Areas
+- [x] Add weekly and biweekly service agreements to company services (pricing table added above)
+- [x] Change hours of operation from 8-6 to 8-4 Monday through Thursday
 - [ ] Change hero image to one with blue skies and striped lawns
 - [ ] Add "Company's Social Responsibility" section on About page
-- [ ] Update hours to "8 to 4, Monday through Thursday" on Contact page
-- [ ] Add three pricing categories (Weekly, Bi-weekly, Non-agreement) to services
 - [ ] Build Snow Removal pricing layout
 - [ ] Create Privacy Policy page in Strapi
 - [ ] Create Terms of Service page in Strapi

@@ -27,16 +27,16 @@ const iconPath = icon ? (iconMap[icon] || defaultIcon) : defaultIcon;
   href={`/services/${slug}`}
   class="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-200"
 >
-  <div class="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-600 transition-colors">
-    <svg class="w-7 h-7 text-primary-600 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" set:html={iconPath} />
+  <div class="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-500 transition-colors">
+    <svg class="w-7 h-7 text-primary-500 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" set:html={iconPath} />
   </div>
-  <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+  <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary-500 transition-colors">
     {name}
   </h3>
   <p class="text-gray-600 text-sm line-clamp-2">
     {description}
   </p>
-  <div class="mt-4 flex items-center text-primary-600 font-medium text-sm">
+  <div class="mt-4 flex items-center text-primary-500 font-medium text-sm">
     Learn more
     <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
