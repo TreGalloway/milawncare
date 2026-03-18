@@ -28,6 +28,35 @@ const DEFAULT_PHONE = '(810) 309-9528';
 
 const displayServices = services.length > 0 ? services : DEFAULT_SERVICES;
 const displayAreas = serviceAreas.length > 0 ? serviceAreas.map(a => a.name) : DEFAULT_SERVICE_AREAS;
+
+function extractRichText(content: any): string[] {
+  if (!content) return [];
+  if (typeof content === 'string') return [content];
+  
+  const paragraphs: string[] = [];
+  
+  if (Array.isArray(content)) {
+    content.forEach((node: any) => {
+      if (node.type === 'heading' && node.children) {
+        const text = node.children
+          .filter((n: any) => n.type === 'text')
+          .map((n: any) => n.text || '')
+          .join('');
+        if (text) paragraphs.push(text);
+      } else if (node.type === 'paragraph' && node.children) {
+        const text = node.children
+          .filter((n: any) => n.type === 'text')
+          .map((n: any) => n.text || '')
+          .join('');
+        paragraphs.push(text);
+      } else if (node.type === 'text') {
+        paragraphs.push(node.text || '');
+      }
+    });
+  }
+  
+  return paragraphs;
+}
 ---
 
 {blocks && blocks.length > 0 ? (
@@ -245,6 +274,7 @@ const displayAreas = serviceAreas.length > 0 ? serviceAreas.map(a => a.name) : D
     if (block.__component === 'shared.text-block') {
       const text = block as TextBlock;
       const alignment = text.alignment || 'left';
+      const paragraphs = extractRichText(text.content);
       return (
         <section class="py-16 lg:py-20">
           <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -256,10 +286,10 @@ const displayAreas = serviceAreas.length > 0 ? serviceAreas.map(a => a.name) : D
               {text.heading && (
                 <h2 class="text-3xl font-bold text-gray-900 mb-6">{text.heading}</h2>
               )}
-              {text.content && (
+              {paragraphs.length > 0 && (
                 <div class="text-gray-600">
-                  {text.content.map((block) => (
-                    <p class="mb-4 whitespace-pre-line">{block.text}</p>
+                  {paragraphs.map((para) => (
+                    <p class="mb-4 whitespace-pre-line">{para}</p>
                   ))}
                 </div>
               )}
