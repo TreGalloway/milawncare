@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import BlocksRenderer from '../components/BlocksRenderer.astro';
-import { fetchPage, fetchServices, fetchServiceAreas } from '../lib/strapi';
+import { fetchPage, fetchServices, fetchServiceAreas, fetchSiteSettings } from '../lib/strapi';
 
 const services = await fetchServices();
 const serviceAreas = await fetchServiceAreas();
 const page = await fetchPage('home');
+const siteSettings = await fetchSiteSettings();
 
 const pageTitle = page?.metaTitle || 'Professional Lawn Care Services in Flint, MI';
 const pageDescription = page?.metaDescription || 'MI Premier Lawn Care - Professional lawn care services in Flint, MI and surrounding areas. Free estimates on all services.';
@@ -16,5 +17,6 @@ const pageDescription = page?.metaDescription || 'MI Premier Lawn Care - Profess
     blocks={page?.blocks} 
     services={services}
     serviceAreas={serviceAreas}
+    qrCodeImage={siteSettings?.qrCodeImage}
   />
 </Layout>

@@ -1,16 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import BlocksRenderer from '../components/BlocksRenderer.astro';
-import { fetchPage } from '../lib/strapi';
+import { fetchPage, fetchSiteSettings } from '../lib/strapi';
 
 const page = await fetchPage('privacy');
+const siteSettings = await fetchSiteSettings();
 const pageTitle = page?.metaTitle || 'Privacy Policy';
 const pageDescription = page?.metaDescription || 'Privacy Policy for MI Premier Lawn Care';
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
   {page?.blocks && page.blocks.length > 0 ? (
-    <BlocksRenderer blocks={page.blocks} />
+    <BlocksRenderer blocks={page.blocks} qrCodeImage={siteSettings?.qrCodeImage} />
   ) : (
     <>
   <section class="bg-primary-500 py-16 lg:py-24">

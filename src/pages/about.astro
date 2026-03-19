@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import BlocksRenderer from '../components/BlocksRenderer.astro';
-import { fetchPage, fetchServices, fetchServiceAreas } from '../lib/strapi';
+import { fetchPage, fetchServices, fetchServiceAreas, fetchSiteSettings } from '../lib/strapi';
 
 const services = await fetchServices();
 const serviceAreas = await fetchServiceAreas();
 const page = await fetchPage('about');
+const siteSettings = await fetchSiteSettings();
 
 const pageTitle = page?.metaTitle || 'About Us';
 const pageDescription = page?.metaDescription || 'Learn more about MI Premier Lawn Care and our mission';
@@ -16,5 +17,6 @@ const pageDescription = page?.metaDescription || 'Learn more about MI Premier La
     blocks={page?.blocks} 
     services={services}
     serviceAreas={serviceAreas}
+    qrCodeImage={siteSettings?.qrCodeImage}
   />
 </Layout>

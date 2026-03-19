@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import BlocksRenderer from '../components/BlocksRenderer.astro';
-import { fetchPage, fetchGalleryItems } from '../lib/strapi';
+import { fetchPage, fetchGalleryItems, fetchSiteSettings } from '../lib/strapi';
 import { getFullImageUrl } from '../lib/strapi';
 
 const galleryItems = await fetchGalleryItems();
 const page = await fetchPage('gallery');
+const siteSettings = await fetchSiteSettings();
 
 const pageTitle = page?.metaTitle || 'Gallery';
 const pageDescription = page?.metaDescription || 'See the results of our professional lawn care services';
@@ -16,6 +17,7 @@ const pageDescription = page?.metaDescription || 'See the results of our profess
     <BlocksRenderer 
       blocks={page.blocks} 
       galleryItems={galleryItems}
+      qrCodeImage={siteSettings?.qrCodeImage}
     />
   ) : (
     <>
