@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import BlocksRenderer from '../components/BlocksRenderer.astro';
 import { fetchPage } from '../lib/strapi';
 
 const page = await fetchPage('privacy');
@@ -8,13 +9,16 @@ const pageDescription = page?.metaDescription || 'Privacy Policy for MI Premier 
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
+  {page?.blocks && page.blocks.length > 0 ? (
+    <BlocksRenderer blocks={page.blocks} />
+  ) : (
+    <>
   <section class="bg-primary-500 py-16 lg:py-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <h1 class="text-4xl lg:text-5xl font-bold text-white mb-4">
         Privacy Policy
       </h1>
     </div>
-    <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
   </section>
 
   <section class="py-16 lg:py-20">
@@ -39,4 +43,6 @@ const pageDescription = page?.metaDescription || 'Privacy Policy for MI Premier 
       </div>
     </div>
   </section>
+    </>
+  )}
 </Layout>

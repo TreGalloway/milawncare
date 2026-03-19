@@ -27,7 +27,7 @@ const DEFAULT_YARDBOOK_URL = 'http://ydbk.co/137258';
 const DEFAULT_PHONE = '(810) 309-9528';
 
 const displayServices = services.length > 0 ? services : DEFAULT_SERVICES;
-const displayAreas = serviceAreas.length > 0 ? serviceAreas.map(a => a.name) : DEFAULT_SERVICE_AREAS;
+const displayAreas = serviceAreas.length > 0 ? serviceAreas.map(a => a.areaName) : DEFAULT_SERVICE_AREAS;
 
 function extractRichText(content: any): string[] {
   if (!content) return [];
@@ -107,7 +107,6 @@ function extractRichText(content: any): string[] {
             </div>
           </div>
 
-          <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
         </section>
       );
     }

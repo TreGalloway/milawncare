@@ -5,7 +5,8 @@ import type {
   Service, 
   ServiceArea, 
   GalleryItem, 
-  SiteSettings 
+  SiteSettings,
+  NavigationItem 
 } from '../types/index';
 
 const STRAPI_URL = import.meta.env.STRAPI_URL || 'http://localhost:1337';
@@ -203,9 +204,31 @@ export async function fetchSiteSettings(isPreview = false): Promise<SiteSettings
   }
 }
 
+// ============ NavigationItem Functions ============
+
+export async function fetchNavigationItems(showInHeader = true): Promise<NavigationItem[]> {
+  try {
+    const res = await fetch(
+      `${STRAPI_URL}/api/navigation-items?filters[showInHeader][$eq]=${showInHeader}&sort[tabOrder]=asc`,
+      { headers: getHeaders() }
+    );
+    
+    if (!res.ok) {
+      console.warn('Failed to fetch navigation items:', res.status, res.statusText);
+      return [];
+    }
+    
+    const json = await res.json();
+    return json.data || [];
+  } catch (e) {
+    console.warn('Failed to fetch navigation items:', e);
+    return [];
+  }
+}
+
 // ============ Helper Functions ============
 
-export function getFullImageUrl(image: StrapiImage | undefined): string {
+export function getFullImageUrl(image: any): string {
   if (!image?.url) return '';
   if (image.url.startsWith('http')) return image.url;
   
@@ -215,7 +238,7 @@ export function getFullImageUrl(image: StrapiImage | undefined): string {
   return image.url;
 }
 
-export function getImageFormatUrl(image: StrapiImage | undefined, format: 'thumbnail' | 'small' | 'medium' | 'large'): string {
+export function getImageFormatUrl(image: any, format: 'thumbnail' | 'small' | 'medium' | 'large'): string {
   if (!image?.formats?.[format]?.url) {
     return getFullImageUrl(image);
   }

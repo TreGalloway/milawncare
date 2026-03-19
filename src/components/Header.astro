@@ -1,4 +1,7 @@
 ---
+import { fetchNavigationItems } from '../lib/strapi';
+import type { NavigationItem } from '../types/index';
+
 interface Props {
   siteData?: {
     companyName: string;
@@ -6,6 +9,7 @@ interface Props {
     yardbookUrl: string;
     email?: string;
     address?: string;
+    quoteButtonText?: string;
   };
 }
 
@@ -13,17 +17,21 @@ const DEFAULT_SITE_DATA = {
   companyName: 'MI Premier Lawn Care, L.L.C',
   phoneNumber: '(810) 309-9528',
   yardbookUrl: 'http://ydbk.co/137258',
+  quoteButtonText: 'Get Quote',
 };
 
-const siteData = Astro.props.siteData || DEFAULT_SITE_DATA;
+const siteData = { ...DEFAULT_SITE_DATA, ...Astro.props.siteData };
 
-const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'Services', href: '/services' },
-  { label: 'About', href: '/about' },
-  { label: 'Gallery', href: '/gallery' },
-  { label: 'Contact', href: '/contact' },
-];
+const navItems = await fetchNavigationItems(true);
+const navLinks: NavigationItem[] = navItems.length > 0 
+  ? navItems 
+  : [
+      { id: 1, documentId: '1', label: 'Home', url: '/', tabOrder: 1, showInHeader: true },
+      { id: 2, documentId: '2', label: 'Services', url: '/services', tabOrder: 2, showInHeader: true },
+      { id: 3, documentId: '3', label: 'About', url: '/about', tabOrder: 3, showInHeader: true },
+      { id: 4, documentId: '4', label: 'Gallery', url: '/gallery', tabOrder: 4, showInHeader: true },
+      { id: 5, documentId: '5', label: 'Contact', url: '/contact', tabOrder: 5, showInHeader: true },
+    ];
 
 const phoneNumber = siteData.phoneNumber;
 const currentPath = Astro.url.pathname;
@@ -43,10 +51,10 @@ const currentPath = Astro.url.pathname;
       <nav class="hidden lg:flex items-center gap-8">
         {navLinks.map((link) => (
           <a
-            href={link.href}
+            href={link.url}
             class:list={[
               'text-sm font-medium transition-colors hover:text-primary-500',
-              currentPath === link.href
+              currentPath === link.url
                 ? 'text-primary-500'
                 : 'text-gray-600'
             ]}
@@ -72,7 +80,7 @@ const currentPath = Astro.url.pathname;
           rel="noopener noreferrer"
           class="bg-accent-500 hover:bg-accent-600 text-gray-900 px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
         >
-          Get Quote
+          {siteData.quoteButtonText}
         </a>
 
         <button
@@ -92,10 +100,10 @@ const currentPath = Astro.url.pathname;
     <nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-2">
       {navLinks.map((link) => (
         <a
-          href={link.href}
+          href={link.url}
           class:list={[
             'px-4 py-3 rounded-lg text-base font-medium transition-colors',
-            currentPath === link.href
+            currentPath === link.url
               ? 'bg-primary-50 text-primary-500'
               : 'text-gray-600 hover:bg-gray-50'
           ]}

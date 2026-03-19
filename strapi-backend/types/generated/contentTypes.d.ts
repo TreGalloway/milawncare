@@ -461,6 +461,38 @@ export interface ApiGalleryItemGalleryItem extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiNavigationItemNavigationItem
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'navigation_items';
+  info: {
+    displayName: 'Navigation Item';
+    pluralName: 'navigation-items';
+    singularName: 'navigation-item';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    label: Schema.Attribute.String & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::navigation-item.navigation-item'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    showInHeader: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    tabOrder: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    url: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface ApiPagePage extends Struct.CollectionTypeSchema {
   collectionName: 'pages';
   info: {
@@ -584,8 +616,11 @@ export interface ApiSiteSettingSiteSetting extends Struct.SingleTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     email: Schema.Attribute.Email;
+    facebookUrl: Schema.Attribute.String;
+    footerTagline: Schema.Attribute.String;
     heroSubtitle: Schema.Attribute.String;
     heroTitle: Schema.Attribute.String;
+    hoursOfOperation: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -597,6 +632,8 @@ export interface ApiSiteSettingSiteSetting extends Struct.SingleTypeSchema {
     qrCodeImage: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios'
     >;
+    quoteButtonText: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Get Quote'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -964,6 +1001,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::gallery-item.gallery-item': ApiGalleryItemGalleryItem;
+      'api::navigation-item.navigation-item': ApiNavigationItemNavigationItem;
       'api::page.page': ApiPagePage;
       'api::service-area.service-area': ApiServiceAreaServiceArea;
       'api::service.service': ApiServiceService;

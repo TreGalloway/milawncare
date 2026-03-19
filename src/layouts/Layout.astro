@@ -14,6 +14,9 @@ const DEFAULT_SITE_DATA = {
   yardbookUrl: 'http://ydbk.co/137258',
   email: '',
   address: '',
+  quoteButtonText: 'Get Quote',
+  footerTagline: 'Professional lawn care services in Flint, MI and surrounding areas. Free estimates on all services. Quality you can trust.',
+  facebookUrl: '',
 };
 
 const { title, description = 'MI Premier Lawn Care - Professional lawn care services in Flint, MI and surrounding areas. Free estimates on all services.' } = Astro.props;
@@ -28,6 +31,9 @@ try {
       yardbookUrl: settings.yardbookUrl || DEFAULT_SITE_DATA.yardbookUrl,
       email: settings.email || '',
       address: settings.address || '',
+      quoteButtonText: settings.quoteButtonText || DEFAULT_SITE_DATA.quoteButtonText,
+      footerTagline: settings.footerTagline || DEFAULT_SITE_DATA.footerTagline,
+      facebookUrl: settings.facebookUrl || '',
     };
   }
 } catch (e) {

@@ -175,21 +175,22 @@ export interface SiteSettings {
   qrCodeImage?: StrapiImage;
   heroTitle?: string;
   heroSubtitle?: string;
+  footerTagline?: string;
+  hoursOfOperation?: string;
+  quoteButtonText?: string;
+  facebookUrl?: string;
   publishedAt?: string;
 }
 
-// Navigation Types
-export interface NavigationLink {
-  label: string;
-  url: string;
-  children?: NavigationLink[];
-}
-
-export interface Navigation {
+// NavigationItem Types
+export interface NavigationItem {
   id: number;
   documentId: string;
-  name: string;
-  links?: NavigationLink[];
-  position?: string;
+  label: string;
+  url: string;
+  tabOrder?: number;
+  showInHeader?: boolean;
   publishedAt?: string;
 }
+
+

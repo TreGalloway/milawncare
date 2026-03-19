@@ -41,6 +41,19 @@
     },
     "heroSubtitle": {
       "type": "string"
+    },
+    "footerTagline": {
+      "type": "string"
+    },
+    "hoursOfOperation": {
+      "type": "string"
+    },
+    "quoteButtonText": {
+      "type": "string",
+      "default": "Get Quote"
+    },
+    "facebookUrl": {
+      "type": "string"
     }
   }
 }

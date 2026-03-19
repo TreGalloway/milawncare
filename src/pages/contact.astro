@@ -1,14 +1,27 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import BlocksRenderer from '../components/BlocksRenderer.astro';
-import { fetchPage, fetchServices, fetchServiceAreas } from '../lib/strapi';
+import { fetchPage, fetchServices, fetchServiceAreas, fetchSiteSettings } from '../lib/strapi';
 
 const services = await fetchServices();
 const serviceAreas = await fetchServiceAreas();
 const page = await fetchPage('contact');
+const siteSettings = await fetchSiteSettings();
 
-const phoneNumber = "(810) 309-9528";
-const yardbookUrl = "http://ydbk.co/137258";
+const DEFAULT_SITE_DATA = {
+  phoneNumber: '(810) 309-9528',
+  yardbookUrl: 'http://ydbk.co/137258',
+  hoursOfOperation: 'Mon-Thu: 8am - 4pm',
+};
+
+const siteData = siteSettings ? {
+  phoneNumber: siteSettings.phoneNumber || DEFAULT_SITE_DATA.phoneNumber,
+  yardbookUrl: siteSettings.yardbookUrl || DEFAULT_SITE_DATA.yardbookUrl,
+  hoursOfOperation: siteSettings.hoursOfOperation || DEFAULT_SITE_DATA.hoursOfOperation,
+} : DEFAULT_SITE_DATA;
+
+const phoneNumber = siteData.phoneNumber;
+const yardbookUrl = siteData.yardbookUrl;
 
 const pageTitle = page?.metaTitle || 'Contact Us';
 const pageDescription = page?.metaDescription || 'Get in touch for a free estimate on our lawn care services';
@@ -32,7 +45,6 @@ const pageDescription = page?.metaDescription || 'Get in touch for a free estima
         Get in touch for a free estimate on our lawn care services
       </p>
     </div>
-    <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
   </section>
 
   <section class="py-16 lg:py-20">
@@ -57,7 +69,7 @@ const pageDescription = page?.metaDescription || 'Get in touch for a free estima
                 <a href={`tel:${phoneNumber.replace(/\D/g, '')}`} class="text-primary-500 hover:text-primary-500">
                   {phoneNumber}
                 </a>
-                <p class="text-sm text-gray-500 mt-1">Mon-Fri: 8am - 6pm</p>
+                <p class="text-sm text-gray-500 mt-1">{siteData.hoursOfOperation}</p>
               </div>
             </div>
 
