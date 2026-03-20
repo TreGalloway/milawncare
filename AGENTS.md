@@ -242,3 +242,24 @@ Follow conventional commits:
 - [x] Create Privacy Policy page
 - [x] Create Terms of Service page
 - [x] Apply Kelly green (#4CBB17) throughout site
+
+## Hosting & Deployment Plan
+
+### Architecture
+- **Platform**: Railway (both Astro + Strapi on single service)
+- **Cost**: $7/month (Railway Standard plan)
+- **Database**: PostgreSQL (included with Railway)
+- **Images**: Cloudinary (free tier)
+- **Domain**: Custom domain (purchased separately)
+
+### Why Railway for Both?
+- Single platform = simpler management
+- Michigan local business = no need for global CDN
+- $7/month fits budget
+- One service hosts both frontend and backend
+
+### Deployment Timeline
+**Target**: Live by tomorrow evening
+**Total setup time**: 2-3 hours
+
+See `docs/Hosting.md` for complete deployment guide and configuration files.
