@@ -15,4 +15,27 @@ export default defineConfig({
       },
     ],
   },
+  vite: {
+    optimizeDeps: {
+      exclude: ['lodash', 'lodash-es', 'lodash/fp', '@strapi/*'],
+    },
+    resolve: {
+      preserveSymlinks: true,
+      conditions: ['import', 'browser', 'default'],
+    },
+    server: {
+      fs: {
+        strict: true,
+        allow: ['..'],
+      },
+    },
+    ssr: {
+      external: ['lodash', 'lodash-es', '@strapi/*'],
+    },
+    build: {
+      rollupOptions: {
+        external: ['lodash', 'lodash-es', 'lodash/fp'],
+      },
+    },
+  },
 });
