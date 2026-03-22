@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": ".",
+    "rootDir": ".",
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*", "config/**/*"],
+  "exclude": ["node_modules", "dist", ".cache", "build"]
+}
