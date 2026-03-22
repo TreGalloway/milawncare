@@ -1,17 +1,17 @@
-module.exports = {
+module.exports = ({ env }) => ({
   auth: {
-    secret: 'your-admin-jwt-secret',
+    secret: env('ADMIN_JWT_SECRET', 'your-admin-jwt-secret'),
   },
   apiToken: {
-    salt: 'your-api-token-salt',
+    salt: env('API_TOKEN_SALT', 'your-api-token-salt'),
   },
   transfer: {
     token: {
-      salt: 'your-transfer-token-salt',
+      salt: env('TRANSFER_TOKEN_SALT', 'your-transfer-token-salt'),
     },
   },
   flags: {
     nps: false,
     promoteEE: false,
   },
-};
+});

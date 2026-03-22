@@ -1,13 +1,10 @@
-module.exports = {
-  host: 'localhost',
-  port: 1337,
+module.exports = ({ env }) => ({
+  host: env('HOST', '0.0.0.0'),
+  port: env.int('PORT', 1337),
   app: {
-    keys: ['yourKeyA', 'yourKeyB'],
-  },
-  web: {
-    enabled: true,
+    keys: env.array('APP_KEYS', ['yourKeyA', 'yourKeyB']),
   },
   admin: {
     autoOpen: false,
   },
-};
+});
