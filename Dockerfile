@@ -12,14 +12,14 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 COPY strapi-backend/package.json ./strapi-backend/
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies (using npm to avoid pnpm peer dependency issues)
+RUN npm install
 
 # Copy source code
 COPY . .
 
 # Build Astro (static site)
-RUN pnpm build
+RUN npm run build
 
 # Build Strapi admin
 WORKDIR /app/strapi-backend
