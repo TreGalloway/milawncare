@@ -9,7 +9,7 @@ RUN npm install -g pnpm && \
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 COPY strapi-backend/package.json ./strapi-backend/
 
 # Install dependencies (using npm to avoid pnpm peer dependency issues)
