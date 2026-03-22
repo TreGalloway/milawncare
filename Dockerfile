@@ -23,6 +23,7 @@ RUN npm run build
 
 # Build Strapi admin
 WORKDIR /app/strapi-backend
+RUN npm install
 RUN npm run build
 
 # Setup nginx configuration
