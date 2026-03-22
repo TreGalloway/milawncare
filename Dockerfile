@@ -27,6 +27,7 @@ RUN npm install
 ENV NODE_ENV=production
 RUN npm run build
 
+
 # Setup nginx configuration
 WORKDIR /app
 COPY nginx.conf /etc/nginx/nginx.conf
