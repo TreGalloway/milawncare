@@ -14,7 +14,7 @@ http {
 
     server {
         listen ${NGINX_PORT};
-        server_name localhost;
+        server_name mipremierlawncare.com www.mipremierlawncare.com localhost;
         root /app/dist;
         index index.html;
 
