@@ -1,7 +1,4 @@
 module.exports = ({ env }) => ({
-  // Absolute URL used in admin emails (e.g. password reset links).
-  // Must match the public domain so reset links aren't broken.
-  url: `${env('PUBLIC_URL', 'https://mipremierlawncare.com')}/admin`,
   auth: {
     secret: env('ADMIN_JWT_SECRET', 'your-admin-jwt-secret'),
   },
