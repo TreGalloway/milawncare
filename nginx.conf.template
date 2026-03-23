@@ -47,6 +47,14 @@ http {
             proxy_set_header Connection "Upgrade";
         }
 
+        # Block the public forgot-password endpoint — anyone on the internet
+        # could spam this to flood admin inboxes or probe for valid accounts.
+        # Password resets must be done by an existing admin from the dashboard,
+        # or via: strapi admin:reset-user-password --email=you@example.com
+        location = /admin/forgot-password {
+            return 403;
+        }
+
         # Strapi Admin
         location /admin {
             proxy_pass http://localhost:1337/admin;
