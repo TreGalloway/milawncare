@@ -1,5 +1,6 @@
 # AGENTS.md - MI Premier Lawn Care Project Guide
 
+
 ## Project Overview
 
 This is a website for MI Premier Lawn Care, a lawn care business in Flint, MI. It uses:
