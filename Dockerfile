@@ -3,7 +3,7 @@ FROM node:20-alpine
 
 # Install pnpm, nginx, gettext (for envsubst), and build tools (for native modules)
 RUN npm install -g pnpm && \
-    apk add --no-cache nginx gettext build-base python3 postgresql-dev
+    apk add --no-cache nginx gettext build-base python3 postgresql-dev curl
 
 # Set working directory
 WORKDIR /app

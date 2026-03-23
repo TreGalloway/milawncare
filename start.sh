@@ -27,7 +27,9 @@ STRAPI_PID=$!
 echo "Waiting for Strapi to be ready..."
 MAX_RETRIES=60
 RETRY_COUNT=0
-until wget --spider -q http://localhost:1337/_health 2>/dev/null; do
+# Strapi v5 /_health returns HTTP 204 (No Content).
+# BusyBox wget --spider treats 204 as a failure, so use curl instead.
+until curl -sf http://localhost:1337/_health 2>/dev/null; do
   RETRY_COUNT=$((RETRY_COUNT + 1))
   if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
     echo "ERROR: Strapi did not become ready in time"
