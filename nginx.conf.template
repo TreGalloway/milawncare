@@ -25,10 +25,12 @@ http {
             add_header Cache-Control "public, immutable";
         }
 
-        # Health check endpoint (proxies to Strapi's /_health)
+        # Health check endpoint — answered by nginx directly so Railway
+        # health checks pass immediately on container start, before Strapi
+        # and Astro finish initializing.
         location = /api/health {
-            proxy_pass http://localhost:1337/_health;
-            proxy_http_version 1.1;
+            return 200 "OK";
+            add_header Content-Type text/plain;
         }
 
         # Strapi API
