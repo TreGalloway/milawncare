@@ -23,7 +23,8 @@
     "name": "Milawn Team"
   },
   "strapi": {
-    "uuid": "milawn-strapi-cms"
+    "uuid": "milawn-strapi-cms",
+    "telemetryDisabled": true
   },
   "engines": {
     "node": ">=20.0.0 <=24.x.x",

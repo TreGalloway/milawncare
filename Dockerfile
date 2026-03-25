@@ -22,6 +22,7 @@ COPY . .
 WORKDIR /app/strapi-backend
 RUN npm install
 ENV NODE_ENV=production
+ENV STRAPI_TELEMETRY_DISABLED=true
 RUN npm run build
 
 # Setup nginx config template (rendered at runtime by start.sh)
