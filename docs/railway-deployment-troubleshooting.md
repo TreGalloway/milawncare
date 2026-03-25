@@ -201,16 +201,129 @@ until curl -sf http://localhost:1337/_health 2>/dev/null; do
 
 ---
 
+## Issue 10 — Telemetry CORS errors blocking admin panel load
+
+**Symptom:** Strapi admin panel shows infinite loading spinner. Browser console shows repeated CORS errors:
+```
+Cross-Origin Request Blocked: https://analytics.strapi.io/api/v2/track
+```
+
+**Cause:** Strapi's telemetry sends tracking data to `analytics.strapi.io` on every admin page load. Railway's network blocks outbound requests to this domain. The failed requests cause CORS errors that can hang the admin UI.
+
+Critically, `STRAPI_TELEMETRY_DISABLED=true` set as a Railway runtime env var does **not** work because the admin panel is built at Docker build time (`RUN npm run build` in Dockerfile). Runtime env vars only exist after the container starts — the admin was already compiled without the telemetry flag.
+
+**Fix:**
+1. Added `"telemetryDisabled": true` to `strapi-backend/package.json` in the `"strapi"` object (the canonical method — what `strapi telemetry:disable` CLI writes):
+```json
+"strapi": {
+  "uuid": "milawn-strapi-cms",
+  "telemetryDisabled": true
+}
+```
+2. Added `ENV STRAPI_TELEMETRY_DISABLED=true` to Dockerfile **before** `RUN npm run build` (belt and suspenders):
+```dockerfile
+ENV NODE_ENV=production
+ENV STRAPI_TELEMETRY_DISABLED=true
+RUN npm run build
+```
+
+**Key lesson:** Any `STRAPI_ADMIN_*` or telemetry env vars must be present at Docker build time, not just at runtime.
+
+---
+
+## Issue 11 — CSP blocking `unsafe-eval` crashes admin JavaScript
+
+**Symptom:** Content Manager shows infinite loading spinner. Content-Type Builder sidebar loads but content area is empty. Dashboard widgets show "error". Browser console shows:
+```
+Content-Security-Policy: The page's settings blocked a JavaScript eval (script-src) from being executed because it violates the following directive: "script-src 'self'" (Missing 'unsafe-eval')
+Object { err: TypeError }
+```
+
+**Cause:** Strapi's `strapi::security` middleware (which wraps `koa-helmet`) sets a strict Content Security Policy. The default `script-src 'self'` directive blocks `eval()` and `new Function()`. Strapi's admin JS bundle uses `eval()` for Content Manager and Content-Type Builder operations, causing a TypeError that breaks these admin pages.
+
+**Fix:** Configured `strapi::security` in `strapi-backend/config/middlewares.js` to allow `'unsafe-eval'` and `'unsafe-inline'` in `script-src`:
+```javascript
+module.exports = [
+  'strapi::logger',
+  'strapi::errors',
+  {
+    name: 'strapi::security',
+    config: {
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          'connect-src': ["'self'", "https:"],
+          'img-src': ["'self'", "data:", "blob:", "market-assets.strapi.io"],
+          'media-src': ["'self'", "data:", "blob:"],
+          'style-src': ["'self'", "'unsafe-inline'"],
+        },
+      },
+    },
+  },
+  'strapi::cors',
+  // ... rest of middleware unchanged
+];
+```
+
+---
+
+## Issue 12 — Strapi plugin API routes not proxied through nginx
+
+**Symptom:** Content Manager and Content-Type Builder show infinite loading. Network tab shows API calls like `/content-manager/content-types-settings` and `/content-type-builder/reserved-names` returning **Type: html** (6.55 kB) instead of JSON. The response is Astro's `index.html`.
+
+**Cause:** Strapi plugin API routes are served at their own top-level paths — they are **not** under the `/admin/` prefix:
+- `/content-manager/` — Content Manager plugin
+- `/content-type-builder/` — Content-Type Builder plugin
+- `/upload/` — Upload plugin API (distinct from `/uploads/` for static files)
+- `/users-permissions/` — Users & Permissions plugin
+- `/i18n/` — Internationalization plugin
+
+The nginx config only had proxy locations for `/api/`, `/admin`, and `/uploads/`. Plugin API calls fell through to the Astro catch-all:
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;   # ← served HTML for API calls
+    expires 1d;
+    add_header Cache-Control "public, immutable";  # ← cached wrong response for 1 day!
+}
+```
+
+This was especially insidious because `Cache-Control: public, immutable` told browsers to cache the HTML response for 1 day without revalidation. Even after fixing the nginx config, browsers continued serving cached HTML until the cache expired or was manually cleared.
+
+**Fix:** Added nginx proxy locations for each Strapi plugin path:
+```nginx
+location /content-manager/ {
+    proxy_pass http://localhost:1337/content-manager/;
+    proxy_http_version 1.1;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Server $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Host $http_host;
+}
+# Same pattern for: /content-type-builder/, /upload/, /users-permissions/, /i18n/
+```
+
+**Important:** After deploying this fix, users must **hard refresh** (Cmd+Shift+R / Ctrl+Shift+R) or clear the browser cache to flush the cached HTML responses. Without this, the browser continues serving stale HTML for the plugin API endpoints.
+
+---
+
 ## Final Working Architecture
 
 ```
 Railway edge (HTTPS:443)
     → container:${PORT} (nginx)
-        → /api/health      → return 200 directly (Railway health check)
-        → /api/*           → proxy → localhost:1337 (Strapi API)
-        → /admin           → proxy → localhost:1337/admin (Strapi admin panel)
-        → /uploads/        → proxy → localhost:1337/uploads/
-        → /                → /app/dist/ (Astro static files)
+        → /api/health              → return 200 directly (Railway health check)
+        → /api/*                   → proxy → localhost:1337 (Strapi API)
+        → /admin                   → proxy → localhost:1337/admin (Strapi admin panel)
+        → /content-manager/        → proxy → localhost:1337 (Strapi Content Manager plugin)
+        → /content-type-builder/   → proxy → localhost:1337 (Strapi Content-Type Builder plugin)
+        → /upload/                 → proxy → localhost:1337 (Strapi Upload plugin API)
+        → /users-permissions/      → proxy → localhost:1337 (Strapi Users & Permissions plugin)
+        → /i18n/                   → proxy → localhost:1337 (Strapi i18n plugin)
+        → /uploads/                → proxy → localhost:1337/uploads/ (static uploaded files)
+        → /                        → /app/dist/ (Astro static files)
 ```
 
 **Container startup sequence:**
