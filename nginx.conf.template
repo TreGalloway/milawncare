@@ -18,10 +18,19 @@ http {
         root /app/dist;
         index index.html;
 
-        # Astro static files
+        # Prevent nginx from appending the internal listen port (e.g. 8080)
+        # to redirect URLs — Railway exposes 80/443 publicly.
+        port_in_redirect off;
+        absolute_redirect off;
+
+        # Astro static files (HTML — no aggressive caching)
         location / {
-            try_files $uri $uri/ /index.html;
-            expires 1d;
+            try_files $uri $uri/index.html =404;
+        }
+
+        # Cache static assets (CSS, JS, images, fonts) aggressively
+        location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg|webp|avif|woff|woff2|ttf|eot)$ {
+            expires 1y;
             add_header Cache-Control "public, immutable";
         }
 

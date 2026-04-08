@@ -309,6 +309,74 @@ location /content-manager/ {
 
 ---
 
+## Issue 13 — Navigation links fail with "can't connect to :8080"
+
+**Symptom:** After browsing the site for 1–2 minutes, clicking navigation links (e.g., Services, About) fails with "Zen can't connect to the server at mipremierlawncare.com:8080."
+
+**Cause:** Nginx's default trailing-slash redirect behavior leaks Railway's internal port.
+
+Astro SSG generates directory-based routes (e.g., `/app/dist/services/index.html`). When a browser requests `/services`, nginx's `try_files $uri $uri/ /index.html` finds the directory `/app/dist/services/` and issues a **301 redirect** to append the trailing slash. By default, nginx includes its listen port in the redirect `Location` header:
+```
+Location: http://mipremierlawncare.com:8080/services/
+```
+Railway assigns port 8080 internally but only exposes 80/443 publicly, so the browser can't connect.
+
+The aggressive `expires 1d; add_header Cache-Control "public, immutable"` on the `location /` block (originally added for static file performance) made this worse — the browser cached the bad 301 redirect for 24 hours. Even after a fix, the cached redirect continued failing.
+
+**Fix (nginx.conf.template):**
+
+1. Added `port_in_redirect off;` and `absolute_redirect off;` to the `server {}` block — prevents nginx from including the internal port in any redirect `Location` headers:
+```nginx
+port_in_redirect off;
+absolute_redirect off;
+```
+
+2. Changed `try_files` to serve index.html directly without triggering a redirect:
+```nginx
+location / {
+    try_files $uri $uri/index.html =404;
+}
+```
+The old `$uri/` fallback triggered an internal-to-external redirect when a directory was found. The new `$uri/index.html` serves the file directly.
+
+3. Moved aggressive caching to a separate static-asset-only location block:
+```nginx
+location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg|webp|avif|woff|woff2|ttf|eot)$ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+}
+```
+HTML pages now use default no-cache behavior, which is correct for content that rebuilds when CMS data changes.
+
+**Key lesson:** Never cache HTML responses with `immutable` on a site that rebuilds dynamically. Cache only fingerprinted static assets.
+
+---
+
+## Issue 14 — Strapi admin "Cannot read image.png" on NavigationItem
+
+**Symptom:** When creating or editing NavigationItem entries in the Strapi admin panel, the admin throws "Cannot read image.png — this model does not support image input" even though the NavigationItem content type has no image field (only `label`, `url`, `tabOrder`, `showInHeader`).
+
+**Cause:** The Strapi admin panel is built during the Docker image build step (`RUN npm run build` in the Dockerfile). At Docker build time, no database is available (`DATABASE_URL` is a Railway runtime env var), so the admin's compiled schema cache is stale or based on incomplete information. At runtime, the admin's compiled JavaScript has incorrect assumptions about which fields exist on content types.
+
+**Fix (start.sh):**
+
+1. Clear Strapi's `.cache` directory before starting Strapi — removes stale schema data from the Docker build:
+```sh
+rm -rf /app/strapi-backend/.cache
+```
+
+2. Rebuild the Strapi admin panel at runtime, after Strapi is healthy and the database is available:
+```sh
+echo "Rebuilding Strapi admin panel..."
+cd /app/strapi-backend
+NODE_ENV=production npm run build 2>&1 || echo "WARN: Strapi admin rebuild failed, using Docker-build version"
+```
+The `|| echo` fallback ensures the container still starts if the rebuild fails. The Docker-build version of the admin is used as a fallback.
+
+**Key lesson:** Strapi admin builds that happen without a database connection produce stale schema caches. In single-container deployments where the database is only available at runtime, rebuild the admin after the database is connected.
+
+---
+
 ## Final Working Architecture
 
 ```
@@ -328,11 +396,13 @@ Railway edge (HTTPS:443)
 
 **Container startup sequence:**
 1. nginx starts immediately on `$PORT` → Railway health checks pass
-2. Strapi starts in background on `1337` → connects to Railway Postgres
-3. `curl -sf localhost:1337/_health` polls until 204 received
-4. `astro build` runs with live Strapi data → outputs to `/app/dist/`
-5. `nginx -s reload` picks up new static files
-6. `wait $NGINX_PID` keeps container alive
+2. Strapi `.cache` cleared (stale admin schema from Docker build)
+3. Strapi starts in background on `1337` → connects to Railway Postgres
+4. `curl -sf localhost:1337/_health` polls until 204 received
+5. Strapi admin rebuilt against live DB schema
+6. `astro build` runs with live Strapi data → outputs to `/app/dist/`
+7. `nginx -s reload` picks up new static files
+8. `wait $NGINX_PID` keeps container alive
 
 ---
 

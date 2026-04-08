@@ -22,6 +22,16 @@ const DEFAULT_SITE_DATA = {
 
 const siteData = { ...DEFAULT_SITE_DATA, ...Astro.props.siteData };
 
+// Normalize nav URLs so full URLs stored in Strapi (e.g. http://host:8080/services/)
+// are reduced to just the pathname (/services). Relative paths pass through unchanged.
+function normalizeNavUrl(url: string): string {
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return url; // already a relative path
+  }
+}
+
 const navItems = await fetchNavigationItems(true);
 const navLinks: NavigationItem[] = navItems.length > 0 
   ? navItems 
@@ -51,10 +61,10 @@ const currentPath = Astro.url.pathname;
       <nav class="hidden lg:flex items-center gap-8">
         {navLinks.map((link) => (
           <a
-            href={link.url}
+            href={normalizeNavUrl(link.url)}
             class:list={[
               'text-sm font-medium transition-colors hover:text-primary-500',
-              currentPath === link.url
+              currentPath === normalizeNavUrl(link.url)
                 ? 'text-primary-500'
                 : 'text-gray-600'
             ]}
@@ -100,10 +110,10 @@ const currentPath = Astro.url.pathname;
     <nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-2">
       {navLinks.map((link) => (
         <a
-          href={link.url}
+          href={normalizeNavUrl(link.url)}
           class:list={[
             'px-4 py-3 rounded-lg text-base font-medium transition-colors',
-            currentPath === link.url
+            currentPath === normalizeNavUrl(link.url)
               ? 'bg-primary-50 text-primary-500'
               : 'text-gray-600 hover:bg-gray-50'
           ]}

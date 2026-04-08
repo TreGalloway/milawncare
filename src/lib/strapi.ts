@@ -31,7 +31,7 @@ function getPublicationStateQuery(isPreview: boolean): string {
 export function getImageUrl(image: { url: string } | undefined): string {
   if (!image?.url) return '';
   if (image.url.startsWith('http')) return image.url;
-  return `${STRAPI_URL}${image.url}`;
+  return image.url.startsWith('/') ? image.url : `/${image.url}`;
 }
 
 // ============ Page Functions ============
@@ -231,11 +231,7 @@ export async function fetchNavigationItems(showInHeader = true): Promise<Navigat
 export function getFullImageUrl(image: any): string {
   if (!image?.url) return '';
   if (image.url.startsWith('http')) return image.url;
-  
-  if (image.url.startsWith('/')) {
-    return `${STRAPI_URL}${image.url}`;
-  }
-  return image.url;
+  return image.url.startsWith('/') ? image.url : `/${image.url}`;
 }
 
 export function getImageFormatUrl(image: any, format: 'thumbnail' | 'small' | 'medium' | 'large'): string {

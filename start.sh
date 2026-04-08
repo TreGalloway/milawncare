@@ -17,13 +17,16 @@ echo "Starting Nginx on port $NGINX_PORT..."
 nginx -g 'daemon off;' &
 NGINX_PID=$!
 
-# 3. Start Strapi on port 1337 in background
+# 3. Clear stale Strapi admin cache from Docker build
+rm -rf /app/strapi-backend/.cache
+
+# 4. Start Strapi on port 1337 in background
 cd /app/strapi-backend
 echo "Starting Strapi on port 1337..."
 PORT=1337 npm start &
 STRAPI_PID=$!
 
-# 4. Wait for Strapi to be ready (up to 120s)
+# 5. Wait for Strapi to be ready (up to 120s)
 echo "Waiting for Strapi to be ready..."
 MAX_RETRIES=60
 RETRY_COUNT=0
@@ -40,15 +43,20 @@ until curl -sf http://localhost:1337/_health 2>/dev/null; do
 done
 echo "Strapi is ready! (PID: $STRAPI_PID)"
 
-# 5. Build Astro now that Strapi is available for data fetching
+# 6. Rebuild Strapi admin against live DB schema
+echo "Rebuilding Strapi admin panel..."
+cd /app/strapi-backend
+NODE_ENV=production npm run build 2>&1 || echo "WARN: Strapi admin rebuild failed, using Docker-build version"
+
+# 7. Build Astro now that Strapi is available for data fetching
 echo "Building Astro site..."
 cd /app
 npm run build
 echo "Astro build complete!"
 
-# 6. Reload nginx to pick up the newly built /app/dist static files
+# 8. Reload nginx to pick up the newly built /app/dist static files
 echo "Reloading Nginx to serve Astro build..."
 nginx -s reload
 
-# 7. Keep the container alive by waiting on nginx
+# 9. Keep the container alive by waiting on nginx
 wait $NGINX_PID
