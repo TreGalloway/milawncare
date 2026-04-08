@@ -45,14 +45,10 @@ COPY --from=builder /app/astro.config.mjs ./
 COPY --from=builder /app/tailwind.config.mjs ./
 COPY --from=builder /app/tsconfig.json ./
 
-# Strapi runtime: built admin panel, source, config, prod deps
-COPY --from=builder /app/strapi-backend/package.json ./strapi-backend/
-COPY --from=builder /app/strapi-backend/node_modules ./strapi-backend/node_modules/
-COPY --from=builder /app/strapi-backend/src ./strapi-backend/src/
-COPY --from=builder /app/strapi-backend/config ./strapi-backend/config/
-COPY --from=builder /app/strapi-backend/build ./strapi-backend/build/
-COPY --from=builder /app/strapi-backend/public ./strapi-backend/public/
-COPY --from=builder /app/strapi-backend/favicon.png ./strapi-backend/
+# Strapi runtime: entire project with built admin + pruned prod deps
+# Copying the whole directory avoids missing files Strapi needs at startup
+# (.strapi/client/, tsconfig.json, etc.)
+COPY --from=builder /app/strapi-backend ./strapi-backend/
 
 # Nginx config template (rendered at runtime by start.sh via envsubst)
 COPY nginx.conf.template /app/nginx.conf.template
