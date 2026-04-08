@@ -43,20 +43,15 @@ until curl -sf http://localhost:1337/_health 2>/dev/null; do
 done
 echo "Strapi is ready! (PID: $STRAPI_PID)"
 
-# 6. Rebuild Strapi admin against live DB schema
-echo "Rebuilding Strapi admin panel..."
-cd /app/strapi-backend
-NODE_ENV=production npm run build 2>&1 || echo "WARN: Strapi admin rebuild failed, using Docker-build version"
-
-# 7. Build Astro now that Strapi is available for data fetching
+# 6. Build Astro now that Strapi is available for data fetching
 echo "Building Astro site..."
 cd /app
 npm run build
 echo "Astro build complete!"
 
-# 8. Reload nginx to pick up the newly built /app/dist static files
+# 7. Reload nginx to pick up the newly built /app/dist static files
 echo "Reloading Nginx to serve Astro build..."
 nginx -s reload
 
-# 9. Keep the container alive by waiting on nginx
+# 8. Keep the container alive by waiting on nginx
 wait $NGINX_PID
