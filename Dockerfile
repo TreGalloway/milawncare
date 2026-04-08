@@ -45,13 +45,12 @@ COPY --from=builder /app/astro.config.mjs ./
 COPY --from=builder /app/tailwind.config.mjs ./
 COPY --from=builder /app/tsconfig.json ./
 
-# Strapi runtime: compiled admin panel, compiled TS, source, config, prod deps
+# Strapi runtime: built admin panel, source, config, prod deps
 COPY --from=builder /app/strapi-backend/package.json ./strapi-backend/
 COPY --from=builder /app/strapi-backend/node_modules ./strapi-backend/node_modules/
 COPY --from=builder /app/strapi-backend/src ./strapi-backend/src/
 COPY --from=builder /app/strapi-backend/config ./strapi-backend/config/
 COPY --from=builder /app/strapi-backend/build ./strapi-backend/build/
-COPY --from=builder /app/strapi-backend/dist ./strapi-backend/dist/
 COPY --from=builder /app/strapi-backend/public ./strapi-backend/public/
 COPY --from=builder /app/strapi-backend/favicon.png ./strapi-backend/
 
