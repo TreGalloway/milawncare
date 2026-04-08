@@ -1,38 +1,64 @@
-# Multi-stage build for Astro + Strapi
-FROM node:20-alpine
+# Stage 1: Build — installs all tools and compiles everything
+FROM node:20-alpine AS builder
 
-# Install pnpm, nginx, gettext (for envsubst), and build tools (for native modules)
-RUN npm install -g pnpm && \
-    apk add --no-cache nginx gettext build-base python3 postgresql-dev curl
+# Build tools needed only for compiling native npm modules
+RUN apk add --no-cache build-base python3 postgresql-dev
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json ./
-COPY strapi-backend/package.json ./strapi-backend/
-
 # Install Astro dependencies
+COPY package.json package-lock.json* ./
 RUN npm install
+
+# Install Strapi dependencies
+COPY strapi-backend/package.json strapi-backend/package-lock.json* ./strapi-backend/
+RUN cd strapi-backend && npm install
 
 # Copy source code
 COPY . .
 
-# Build Strapi admin
+# Build Strapi admin (compiles TS + bundles the admin React app)
 WORKDIR /app/strapi-backend
-RUN npm install
 ENV NODE_ENV=production
 ENV STRAPI_TELEMETRY_DISABLED=true
+ENV NODE_OPTIONS=--max-old-space-size=2048
 RUN npm run build
 
-# Setup nginx config template (rendered at runtime by start.sh)
+# Prune dev dependencies — runtime image only needs prod deps
+RUN npm prune --production
+
+
+# Stage 2: Runtime — clean image, no build tools
+FROM node:20-alpine
+
+# Only runtime system deps: nginx (proxy), gettext (envsubst), curl (health check)
+RUN apk add --no-cache nginx gettext curl
+
 WORKDIR /app
+
+# Astro source + prod deps (Astro site is built at container startup by start.sh)
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules/
+COPY --from=builder /app/src ./src/
+COPY --from=builder /app/public ./public/
+COPY --from=builder /app/astro.config.mjs ./
+COPY --from=builder /app/tailwind.config.mjs ./
+COPY --from=builder /app/tsconfig.json ./
+
+# Strapi runtime: compiled admin panel, compiled TS, source, config, prod deps
+COPY --from=builder /app/strapi-backend/package.json ./strapi-backend/
+COPY --from=builder /app/strapi-backend/node_modules ./strapi-backend/node_modules/
+COPY --from=builder /app/strapi-backend/src ./strapi-backend/src/
+COPY --from=builder /app/strapi-backend/config ./strapi-backend/config/
+COPY --from=builder /app/strapi-backend/build ./strapi-backend/build/
+COPY --from=builder /app/strapi-backend/dist ./strapi-backend/dist/
+COPY --from=builder /app/strapi-backend/public ./strapi-backend/public/
+COPY --from=builder /app/strapi-backend/favicon.png ./strapi-backend/
+
+# Nginx config template (rendered at runtime by start.sh via envsubst)
 COPY nginx.conf.template /app/nginx.conf.template
 
-
-# Create startup script
 COPY start.sh ./
 RUN chmod +x start.sh
 
-# Start both services
 CMD ["./start.sh"]

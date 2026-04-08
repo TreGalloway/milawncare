@@ -1,0 +1,30 @@
+# Git history
+.git
+
+# Claude worktrees and session data (can be very large)
+.claude
+
+# Dependencies — rebuilt inside Docker
+node_modules
+strapi-backend/node_modules
+
+# Previous build artifacts
+strapi-backend/build
+strapi-backend/dist
+dist
+
+# Runtime junk
+.tmp
+strapi-backend/.tmp
+strapi-backend/.strapi
+strapi-backend/strapi.log
+strapi-backend/strapi.pid
+*.log
+*.pid
+
+# Docs and local-only files
+docs
+*.md
+.env
+.env.*
+!.env.example
