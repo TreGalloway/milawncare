@@ -375,9 +375,161 @@ The `|| echo` fallback ensures the container still starts if the rebuild fails. 
 
 **Key lesson:** Strapi admin builds that happen without a database connection produce stale schema caches. In single-container deployments where the database is only available at runtime, rebuild the admin after the database is connected.
 
+> ⚠️ **Superseded by Issue 15.** The runtime `strapi build` introduced here causes an out-of-memory crash in Railway's production containers. Do **not** rebuild the Strapi admin at runtime. See Issue 15 for the correct approach.
+
+---
+
+## Issue 15 — Runtime `strapi build` OOM wipes admin panel → "Not Found"
+
+**Symptom:** Strapi admin at `/admin` returns a plain-text "Not Found" (9 bytes, `text/plain`). Container logs show:
+```
+Rebuilding Strapi admin panel...
+FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+Aborted
+WARN: Strapi admin rebuild failed, using Docker-build version
+```
+Then later:
+```
+Error: ENOENT: no such file or directory, open '/app/strapi-backend/build/index.html'
+```
+
+**Cause:** Issue 14's fix added `NODE_ENV=production npm run build` to `start.sh` at container startup. Railway's production containers have ~512MB RAM. Node.js's default heap cap is ~486MB. The Vite bundler (used by `strapi build`) is extremely memory-intensive and hits the heap limit mid-write. The OOM kill corrupts or deletes `build/index.html` and the JS chunk files. Strapi then can't find the admin panel and returns Koa's default plain-text 404.
+
+**Fix:**
+1. Remove the runtime `npm run build` block from `start.sh`:
+```sh
+# REMOVE these lines:
+echo "Rebuilding Strapi admin panel..."
+cd /app/strapi-backend
+NODE_ENV=production npm run build 2>&1 || echo "WARN: ..."
+```
+
+2. Build the Strapi admin **once** at Docker build time with a raised heap limit (see Issue 16 for the Dockerfile change):
+```dockerfile
+ENV NODE_OPTIONS=--max-old-space-size=2048
+RUN npm run build
+```
+Railway's Docker build environment has significantly more RAM than the runtime container, so the build succeeds there.
+
+**Key lesson:** Never run `strapi build` (or any Vite build) inside a production container at startup. Railway production instances are memory-constrained. Build at image-build time where resources are less limited.
+
+---
+
+## Issue 16 — Docker image export timeout (single-stage image too large)
+
+**Symptom:** Railway build log ends with a timeout during the "exporting to docker image format" step. Build itself completes successfully but the image never gets pushed.
+
+**Cause:** The single-stage Dockerfile installed build tools that were needed only to compile native npm modules, but they remained in the final image. `apk add --no-cache build-base python3 postgresql-dev` pulled in gcc, g++, clang, llvm, icu, and 64 total APK packages (~735MB). Combined with node_modules, the final image reached ~1.5GB. Railway's image export step timed out before finishing.
+
+**Fix:** Rewrote the Dockerfile as a **multi-stage build**:
+```dockerfile
+# Stage 1: Builder — has all compilers, runs strapi build, prunes devDeps
+FROM node:20-alpine AS builder
+RUN apk add --no-cache build-base python3 postgresql-dev
+# ... install deps, copy source ...
+ENV NODE_OPTIONS=--max-old-space-size=2048
+RUN npm run build       # builds Strapi admin panel with 2GB heap
+RUN npm prune --production
+
+# Stage 2: Runtime — clean Alpine, no build tools
+FROM node:20-alpine
+RUN apk add --no-cache nginx gettext curl   # runtime-only: 23.6MB total
+COPY --from=builder /app/strapi-backend ./strapi-backend/
+# ... copy only what's needed at runtime ...
+```
+
+Also added `.dockerignore` to reduce build context:
+```
+.git
+.claude          # worktrees — can be very large
+node_modules
+strapi-backend/node_modules
+.tmp
+*.log
+```
+
+**Result:** Runtime image goes from ~1.5GB → ~400MB. Export completes within Railway's timeout.
+
+---
+
+## Issue 17 — `COPY strapi-backend/dist/` fails (directory doesn't exist)
+
+**Symptom:** Multi-stage build fails with:
+```
+ERROR: "/app/strapi-backend/dist": not found
+Dockerfile:54
+54 | >>> COPY --from=builder /app/strapi-backend/dist ./strapi-backend/dist/
+```
+
+**Cause:** When designing the multi-stage COPY stage, `strapi-backend/dist/` was included on the assumption that `strapi build` compiles TypeScript to `dist/`. It does not. `strapi build` only outputs the admin panel to `build/`. The `dist/` directory is created by `strapi start`/`strapi develop` at runtime (Strapi compiles TS on the fly at startup).
+
+**Fix:** Remove the `dist/` COPY line entirely:
+```dockerfile
+# Remove this line:
+COPY --from=builder /app/strapi-backend/dist ./strapi-backend/dist/
+```
+
+Strapi v5 compiles TypeScript from `src/` at container startup — no pre-compiled `dist/` needed in the image.
+
+---
+
+## Issue 18 — Cherry-picked COPY lines miss files Strapi v5 needs at startup
+
+**Symptom:** After the multi-stage build succeeds and deploys, the admin HTML loads (HTTP 200) but all JS chunks return HTTP 404. Browser console shows:
+```
+Loading module from "https://mipremierlawncare.com/admin/strapi-Cmy6igNu.js"
+was blocked because of a disallowed MIME type ("text/html").
+```
+Railway HTTP logs confirm: `GET /admin/strapi-Cmy6igNu.js → 404`.
+
+**Cause:** The runtime stage used individual `COPY` lines for each strapi-backend subdirectory (`src/`, `config/`, `build/`, `public/`, `favicon.png`). This missed:
+- `.strapi/client/` — auto-generated admin entry points (`index.html`, `app.js`) that Strapi v5 generates and needs at startup to locate and serve the admin panel
+- `tsconfig.json` — Strapi uses this to determine if the project uses TypeScript and to resolve paths at startup
+
+Without `.strapi/client/`, Strapi v5 couldn't properly initialize its admin-serving middleware. The `build/index.html` existed but the JS chunk files weren't being served.
+
+**Fix:** Replace the 7 individual `COPY` lines with a single directory copy:
+```dockerfile
+# Before (missed .strapi/client/, tsconfig.json, etc.):
+COPY --from=builder /app/strapi-backend/package.json ./strapi-backend/
+COPY --from=builder /app/strapi-backend/node_modules ./strapi-backend/node_modules/
+COPY --from=builder /app/strapi-backend/src ./strapi-backend/src/
+COPY --from=builder /app/strapi-backend/config ./strapi-backend/config/
+COPY --from=builder /app/strapi-backend/build ./strapi-backend/build/
+COPY --from=builder /app/strapi-backend/public ./strapi-backend/public/
+COPY --from=builder /app/strapi-backend/favicon.png ./strapi-backend/
+
+# After (copies everything — node_modules are already pruned in builder):
+COPY --from=builder /app/strapi-backend ./strapi-backend/
+```
+
+**Key lesson:** When using a multi-stage build, copy entire project directories rather than cherry-picking subdirectories unless you have a comprehensive list of every file a framework needs at runtime.
+
+---
+
+## Issue 19 — `start.sh` fix existed only in worktree branch, not `main`
+
+**Symptom:** Despite having committed a fix to remove the runtime admin rebuild, every new Railway deploy still showed "Rebuilding Strapi admin panel..." in the logs and still OOMed. The admin remained broken after every deploy.
+
+**Cause:** The `start.sh` fix (removing the runtime `strapi build`) was committed to the `claude/festive-lewin` git worktree branch — a separate branch used during development. The `main` branch, which Railway deploys from, still had the old `start.sh` with the OOM rebuild at step 6. The Dockerfile was updated in `main` (multi-stage build) but `start.sh` was not.
+
+**Fix:** Read `main`'s `start.sh` directly and remove the runtime rebuild block:
+```sh
+# Remove from start.sh in main:
+# 6. Rebuild Strapi admin against live DB schema
+echo "Rebuilding Strapi admin panel..."
+cd /app/strapi-backend
+NODE_ENV=production npm run build 2>&1 || echo "WARN: Strapi admin rebuild failed, using Docker-build version"
+```
+Commit and push directly to `main`.
+
+**Key lesson:** When using git worktrees for development, always verify which branch is being deployed and sync fixes to that branch explicitly. A fix committed to a feature branch has no effect on production until merged or cherry-picked to the deploy branch.
+
 ---
 
 ## Final Working Architecture
+
+**Docker image:** Multi-stage build — builder stage compiles everything, runtime stage is clean Alpine with only nginx + curl + Node.js. Image size ~400MB vs the original ~1.5GB.
 
 ```
 Railway edge (HTTPS:443)
@@ -395,14 +547,15 @@ Railway edge (HTTPS:443)
 ```
 
 **Container startup sequence:**
-1. nginx starts immediately on `$PORT` → Railway health checks pass
-2. Strapi `.cache` cleared (stale admin schema from Docker build)
+1. nginx starts immediately on `$PORT` → Railway health checks pass from second 0
+2. Strapi `.cache` cleared (removes any stale data from Docker build)
 3. Strapi starts in background on `1337` → connects to Railway Postgres
 4. `curl -sf localhost:1337/_health` polls until 204 received
-5. Strapi admin rebuilt against live DB schema
-6. `astro build` runs with live Strapi data → outputs to `/app/dist/`
-7. `nginx -s reload` picks up new static files
-8. `wait $NGINX_PID` keeps container alive
+5. `astro build` runs with live Strapi data → outputs to `/app/dist/`
+6. `nginx -s reload` picks up new static files
+7. `wait $NGINX_PID` keeps container alive
+
+**Note:** The Strapi admin panel is built **once** during `docker build` with `NODE_OPTIONS=--max-old-space-size=2048`. It is **not** rebuilt at container startup — the production container does not have enough RAM for the Vite bundler (see Issues 15, 19).
 
 ---
 
